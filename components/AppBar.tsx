@@ -39,6 +39,9 @@ export default function AppBar({ handle }: { handle: string }) {
           <Link href="/inbox" className="text-muted-foreground transition-colors hover:text-foreground">
             Inbox
           </Link>
+          <Link href="/settings/invites" className="hidden text-muted-foreground transition-colors hover:text-foreground sm:inline">
+            Invite
+          </Link>
           <NotificationBell />
           <Link
             href={`/u/${handle}`}

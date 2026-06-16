@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/session";
 import { pusherServer } from "@/lib/pusher";
 import { moderateText } from "@/lib/moderation";
 import { notify } from "@/app/actions/notifications";
+import { isBlockedEitherWay } from "@/app/actions/blocks";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 import type { Conversation, Message } from "@/lib/types";
@@ -50,6 +51,11 @@ export async function startConversation(otherUsername: string) {
   if (!other) return { error: "No one here goes by that name." };
 
   const otherId = other._id.toString();
+
+  // If either user has blocked the other, don't allow starting a chat.
+  if (await isBlockedEitherWay(me.id, otherId)) {
+    return { error: "You can't start a chat with this person." };
+  }
 
   // A sorted pair of ids uniquely identifies a conversation.
   const pair = [me.id, otherId].sort();
@@ -141,6 +147,12 @@ export async function sendMessage(conversationId: string, content: string) {
     .collection("conversations")
     .findOne({ _id: new ObjectId(conversationId), participantIds: me.id });
   if (!convo) return { error: "Conversation not found." };
+
+  // Block check: if the other participant has blocked me (or vice versa), stop.
+  const otherParticipant = convo.participantIds.find((id: string) => id !== me.id);
+  if (otherParticipant && (await isBlockedEitherWay(me.id, otherParticipant))) {
+    return { error: "You can no longer message this person." };
+  }
 
   const myUsername = (me as any).username || (me as any).displayUsername || "anon";
   const now = new Date();

@@ -27,8 +27,8 @@ export default async function InboxPage() {
           <h1 className="font-display text-2xl font-medium">Your inbox</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {questions.length === 0
-              ? "Anonymous questions people send you land here."
-              : `${questions.length} question${questions.length === 1 ? "" : "s"}` +
+              ? "Anonymous messages people send you land here."
+              : `${questions.length} message${questions.length === 1 ? "" : "s"}` +
                 (unanswered ? ` · ${unanswered} unanswered` : "")}
           </p>
         </div>
@@ -40,7 +40,7 @@ export default async function InboxPage() {
             <div className="rounded-3xl border border-dashed border-border bg-card/40 px-6 py-14 text-center">
               <p className="text-3xl">📭</p>
               <p className="mt-3 text-sm text-muted-foreground">
-                No questions yet. Share your link above to start receiving them.
+                No messages yet. Share your link above to start receiving them.
               </p>
             </div>
           ) : (

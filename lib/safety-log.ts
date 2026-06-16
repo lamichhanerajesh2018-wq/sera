@@ -25,6 +25,12 @@ function hashIp(ip: string): string {
   return createHash("sha256").update(ip + secret).digest("hex");
 }
 
+// Exposed for rate limiting: the hashed identifier for the current request's IP.
+// Same hashing as safety logs, so we never handle a raw IP outside this module.
+export async function currentIpHash(): Promise<string> {
+  return hashIp(await getClientIp());
+}
+
 // Record a safety event tied to a user. `kind` is e.g. "signup" or "post".
 export async function logSafetyEvent(userId: string, kind: string) {
   try {

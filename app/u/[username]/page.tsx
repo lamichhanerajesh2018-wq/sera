@@ -5,9 +5,12 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { getProfile, getProfilePosts } from "@/app/actions/profile";
+import { listPublicAnswers } from "@/app/actions/questions";
+import { amIBlocking } from "@/app/actions/blocks";
 import AppBar from "@/components/AppBar";
 import PostCard from "@/components/PostCard";
 import MessageButton from "@/components/MessageButton";
+import BlockButton from "@/components/BlockButton";
 
 export async function generateMetadata({
   params,
@@ -40,6 +43,8 @@ export default async function ProfilePage({
   if (!profile) notFound();
 
   const posts = await getProfilePosts(profile.username);
+  const answers = await listPublicAnswers(profile.username);
+  const blocking = profile.isMe ? false : await amIBlocking(profile.username);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -67,9 +72,22 @@ export default async function ProfilePage({
               </p>
             </div>
             {profile.isMe ? (
-              <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
-                This is you
-              </span>
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/settings/invites"
+                  className="rounded-full border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Invite
+                </Link>
+                <Link
+                  href="/settings/blocks"
+                  className="rounded-full border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Blocked
+                </Link>
+              </div>
+            ) : blocking ? (
+              <BlockButton username={profile.username} initialBlocked={true} />
             ) : (
               <div className="flex items-center gap-2">
                 <Link
@@ -79,10 +97,46 @@ export default async function ProfilePage({
                   Ask
                 </Link>
                 <MessageButton username={profile.username} />
+                <BlockButton username={profile.username} initialBlocked={false} />
               </div>
             )}
           </div>
         </div>
+
+        {/* public Q&A wall */}
+        {answers.length > 0 && (
+          <div className="mt-6">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-display text-lg font-medium">
+                Answers <span className="text-muted-foreground">· {answers.length}</span>
+              </h2>
+              {!profile.isMe && (
+                <Link
+                  href={`/ask/${profile.username}`}
+                  className="text-sm text-primary transition-colors hover:text-primary/80"
+                >
+                  Ask a question →
+                </Link>
+              )}
+            </div>
+            <div className="space-y-3">
+              {answers.map((a) => (
+                <div key={a._id} className="rounded-3xl border border-border bg-card p-5">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs">
+                      ❓
+                    </span>
+                    <p className="flex-1 whitespace-pre-wrap text-[15px] leading-7">{a.content}</p>
+                  </div>
+                  <div className="mt-3 ml-11 rounded-2xl border border-border bg-background/40 p-3">
+                    <p className="text-[11px] text-primary">@{profile.username}</p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm leading-6">{a.answer}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* posts */}
         <div className="mt-6 space-y-4">

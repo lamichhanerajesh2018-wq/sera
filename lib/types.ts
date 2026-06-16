@@ -86,6 +86,11 @@ export interface AnonQuestion {
   content: string;
   answer: string | null;
   answeredAt: string | null;
+  // When answered, the recipient chooses whether the answer is shown on their
+  // public profile wall (true) or kept private in their inbox only (false).
+  isPublic: boolean;
+  // Recipient's reactions to the message, e.g. { "❤️": 1, "👀": 1 }.
+  reactions: Record<string, number>;
   createdAt: string;
 }
 
@@ -118,5 +123,16 @@ export interface Notification {
   text: string;
   link: string;
   read: boolean;
+  createdAt: string;
+}
+
+// A block: `blockerId` (the user who blocked) will no longer receive messages,
+// questions or chats from `blockedUsername`. Stored by username because that's
+// the only identity surfaced in the app; we also keep blockedId for fast checks.
+export interface Block {
+  _id: string;
+  blockerId: string;
+  blockedId: string;
+  blockedUsername: string;
   createdAt: string;
 }

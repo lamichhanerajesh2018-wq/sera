@@ -11,12 +11,36 @@ export async function reserveUsername(): Promise<string> {
   return generateUniqueUsername();
 }
 
-// Step 2 (after signup succeeds): write the minimal safety log for the new user.
-// Called with the new user's id once Better Auth has created the account.
-export async function logSignup(username: string) {
+// Step 2 (after signup succeeds): write the minimal safety log for the new user,
+// and — if they arrived via an invite link (?ref=) — record the referral.
+// Called with the new user's username once Better Auth has created the account.
+export async function logSignup(username: string, ref?: string) {
   const user = await db.collection("user").findOne({ username });
-  if (user) {
-    await logSafetyEvent(user._id.toString(), "signup");
+  if (!user) return;
+
+  await logSafetyEvent(user._id.toString(), "signup");
+
+  // Referral linking is best-effort — never block or fail signup over it.
+  try {
+    const refHandle = (ref ?? "").trim().toLowerCase();
+    if (!refHandle || refHandle === username.toLowerCase()) return; // no self-referral
+
+    const referrer = await db.collection("user").findOne({ username: refHandle });
+    if (!referrer) return;
+
+    // Only set once, and only if not already referred.
+    if (user.referredBy) return;
+
+    await db.collection("user").updateOne(
+      { _id: user._id },
+      { $set: { referredBy: referrer.username, referredAt: new Date() } }
+    );
+    await db.collection("user").updateOne(
+      { _id: referrer._id },
+      { $inc: { referralCount: 1 } }
+    );
+  } catch {
+    // ignore — the account already exists and works regardless
   }
 }
 

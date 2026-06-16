@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { reserveUsername, logSignup, createAnonCredentials } from "@/app/actions/signup";
 
@@ -10,6 +10,9 @@ type Mode = "recoverable" | "anonymous";
 
 export default function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Invite link: /signup?ref=<username>. Captured here, recorded after signup.
+  const ref = (searchParams.get("ref") || "").trim().toLowerCase();
   const [mode, setMode] = useState<Mode>("recoverable");
 
   // shared
@@ -54,7 +57,7 @@ export default function SignupForm() {
     }
 
     try {
-      await logSignup(handle);
+      await logSignup(handle, ref);
     } catch {
       /* account already created */
     }
@@ -84,7 +87,7 @@ export default function SignupForm() {
     }
 
     try {
-      await logSignup(creds.username);
+      await logSignup(creds.username, ref);
     } catch {
       /* account already created */
     }
@@ -144,6 +147,14 @@ export default function SignupForm() {
   // ---- main form ---------------------------------------------------------
   return (
     <div className="space-y-5">
+      {/* invited-by banner */}
+      {ref && (
+        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-3 text-center text-sm">
+          <span className="text-muted-foreground">Invited by </span>
+          <span className="font-medium text-primary">@{ref}</span>
+        </div>
+      )}
+
       {/* mode toggle */}
       <div className="grid grid-cols-2 gap-1 rounded-full border border-border bg-background/40 p-1 text-sm">
         <button

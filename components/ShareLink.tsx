@@ -23,9 +23,9 @@ export default function ShareLink({ handle }: { handle: string }) {
 
   return (
     <div className="rounded-3xl border border-border bg-card p-5">
-      <p className="text-sm font-medium">Your anonymous question link</p>
+      <p className="text-sm font-medium">Your anonymous message link</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Share it anywhere. Anyone signed in can ask you anything — you&apos;ll never see who.
+        Share it anywhere. Anyone can send you an anonymous message — you&apos;ll never see who.
       </p>
       <div className="mt-3 flex items-center gap-2">
         <code className="flex-1 truncate rounded-xl border border-border bg-background/40 px-3 py-2.5 text-sm text-muted-foreground">
