@@ -79,7 +79,7 @@ async function likedPostIds(userId: string, postIds: ObjectId[]): Promise<Set<st
     .collection("reactions")
     .find({ userId, type: "like", postId: { $in: postIds.map((id) => id.toString()) } })
     .toArray();
-  return new Set(rows.map((r) => r.postId));
+  return new Set(rows.map((r) => r.postId as string));
 }
 
 export async function listFeed(): Promise<Post[]> {

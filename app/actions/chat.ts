@@ -149,8 +149,8 @@ export async function sendMessage(conversationId: string, content: string) {
   if (!convo) return { error: "Conversation not found." };
 
   // Block check: if the other participant has blocked me (or vice versa), stop.
-  const otherParticipant = convo.participantIds.find((id: string) => id !== me.id);
-  if (otherParticipant && (await isBlockedEitherWay(me.id, otherParticipant))) {
+  const otherId = convo.participantIds.find((id: string) => id !== me.id);
+  if (otherId && (await isBlockedEitherWay(me.id, otherId))) {
     return { error: "You can no longer message this person." };
   }
 
@@ -182,8 +182,7 @@ export async function sendMessage(conversationId: string, content: string) {
   // Realtime: broadcast to everyone subscribed to this conversation's channel.
   await pusherServer.trigger(`conversation-${conversationId}`, "new-message", message);
 
-  // Notify the other participant.
-  const otherId = convo.participantIds.find((id) => id !== me.id);
+  // Notify the other participant (otherId computed above).
   if (otherId) {
     await notify(otherId, "message", "You have a new anonymous message.", `/chat/${conversationId}`);
   }
