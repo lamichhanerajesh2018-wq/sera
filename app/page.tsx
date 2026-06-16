@@ -60,9 +60,16 @@ export default function Home() {
           <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
             Share confessions, receive anonymous messages, join communities, and
             speak freely — without ever revealing your identity.
-            No real names.No phone number.No followers.
+          </p>
+        </Reveal>
 
-
+        <Reveal delay={150}>
+          <p className="mx-auto mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-medium text-foreground/80">
+            <span>No real names.</span>
+            <span className="text-primary/40">·</span>
+            <span>No phone numbers.</span>
+            <span className="text-primary/40">·</span>
+            <span>No followers.</span>
           </p>
         </Reveal>
 
@@ -285,6 +292,77 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ---------- ANONYMOUS IDENTITY + ASK LINK ---------- */}
+      <section id="identity" className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-20">
+        <Reveal>
+          <div className="mb-14 text-center">
+            <p className="eyebrow">Your anonymous identity</p>
+            <h2 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+              One handle. Zero traces.
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl leading-7 text-muted-foreground">
+              When you join, you become a random handle like sera-4821 — the only
+              thing anyone ever sees. Share your link and let people reach you,
+              anonymously.
+            </p>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 items-center gap-6 lg:grid-cols-2">
+          {/* identity card */}
+          <Reveal>
+            <div className="rounded-3xl border border-border bg-card p-7">
+              <div className="flex items-center gap-4">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-2xl ring-1 ring-inset ring-primary/10">
+                  🕶️
+                </span>
+                <div>
+                  <p className="font-display text-xl font-medium">sera-4821</p>
+                  <p className="text-xs text-muted-foreground">Anonymous since 2026</p>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-2xl border border-border bg-background/40 p-3">
+                  <p className="font-display text-lg font-medium text-primary">43</p>
+                  <p className="text-[11px] text-muted-foreground">Confessions</p>
+                </div>
+                <div className="rounded-2xl border border-border bg-background/40 p-3">
+                  <p className="font-display text-lg font-medium text-primary">7</p>
+                  <p className="text-[11px] text-muted-foreground">Communities</p>
+                </div>
+                <div className="rounded-2xl border border-border bg-background/40 p-3">
+                  <p className="font-display text-lg font-medium text-primary">128</p>
+                  <p className="text-[11px] text-muted-foreground">Answers</p>
+                </div>
+              </div>
+              <p className="mt-4 text-center text-xs text-muted-foreground">
+                No real name. No photo. No phone. Just your words.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* ask-link card (viral feature) */}
+          <Reveal delay={120}>
+            <div className="rounded-3xl border border-primary/30 bg-primary/5 p-7">
+              <p className="text-sm font-medium text-primary">Your anonymous link</p>
+              <div className="mt-3 rounded-2xl border border-border bg-background/60 px-4 py-3 font-mono text-sm text-muted-foreground">
+                sera.app/ask/sera-4821
+              </div>
+              <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                Drop it in your bio or story. Anyone can send you an anonymous
+                message — no login, no trace. You decide what to answer in public.
+              </p>
+              <Link
+                href="/signup"
+                className="mt-5 inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Get your link
+              </Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* ---------- AI SAFETY ---------- */}
       <section id="safety" className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-20">
         <Reveal>
@@ -339,6 +417,38 @@ export default function Home() {
         </Reveal>
       </section>
 
+      {/* ---------- WHY SERA ---------- */}
+      <section id="why" className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-20">
+        <Reveal>
+          <div className="mb-14 text-center">
+            <p className="eyebrow">Why Sera exists</p>
+            <h2 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+              Instagram rewards attention.
+              <br className="hidden sm:block" />{" "}
+              <span className="text-primary">Sera rewards honesty.</span>
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl leading-7 text-muted-foreground">
+              Social media made us perform. Sera takes the performance away — no
+              audience to impress, no image to maintain. Just what&apos;s real.
+            </p>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {WHY.map((w, i) => (
+            <Reveal key={w.title} delay={i * 90}>
+              <div className="flex h-full flex-col rounded-3xl border border-border bg-card p-7 text-center">
+                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-xl ring-1 ring-inset ring-primary/10">
+                  {w.icon}
+                </span>
+                <h3 className="mt-4 font-display text-lg font-medium">{w.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{w.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
       {/* ---------- HOW IT WORKS ---------- */}
       <section id="how" className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-20">
         <Reveal>
@@ -373,32 +483,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- TESTIMONIALS ---------- */}
-      <section id="testimonials" className="mx-auto w-full max-w-6xl scroll-mt-20 px-6 py-20">
-        <Reveal>
-          <div className="mb-14 text-center">
-            <p className="eyebrow">In their words</p>
-            <h2 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-4xl">
-              What people are saying
-            </h2>
-          </div>
-        </Reveal>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
-            <Reveal key={t.role} delay={i * 110}>
-              <figure className="flex h-full flex-col rounded-3xl border border-border bg-card p-7 transition-colors hover:border-primary/20">
-                <span className="font-display text-4xl leading-none text-primary/40">&ldquo;</span>
-                <blockquote className="mt-2 flex-1 text-sm leading-7 text-foreground/90">{t.quote}</blockquote>
-                <figcaption className="mt-6 flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm">{t.emoji}</span>
-                  <span className="block text-sm font-medium text-muted-foreground">— {t.role}</span>
-                </figcaption>
-              </figure>
-            </Reveal>
-          ))}
-        </div>
-      </section>
+      {/* ---------- TESTIMONIALS (hidden until we have real beta users) ----------
+          Intentionally removed for launch — fake testimonials hurt trust on a
+          platform built around honesty. Re-add with real quotes post-beta. */}
 
       {/* ---------- FAQ ---------- */}
       <section id="faq" className="mx-auto w-full max-w-3xl scroll-mt-20 px-6 py-20">
@@ -553,10 +640,10 @@ function FooterCol({
 
 /* ---------- content ---------- */
 const STATS = [
-  { value: "Anonymous", label: "Messages exchanged daily" },
-  { value: "Open", label: "Confessions shared freely" },
-  { value: "Growing", label: "Communities to join" },
-  { value: "99.8%", label: "Safe conversations" },
+  { value: "Anonymous", label: "No real names, ever" },
+  { value: "Private", label: "IP addresses never stored raw" },
+  { value: "AI Moderated", label: "Harmful content blocked in real time" },
+  { value: "Identity-Free", label: "No phone, no followers" },
 ];
 
 const FEATURES = [
@@ -638,10 +725,24 @@ const STEPS = [
   { icon: "🔒", title: "Stay anonymous", body: "Your identity is never tied to anything you say." },
 ];
 
-const TESTIMONIALS = [
-  { quote: "Sera is the first place I can be honest.", role: "Student", emoji: "🦋" },
-  { quote: "Finally a platform where people tell the truth.", role: "Creator", emoji: "🎬" },
-  { quote: "As a founder, this helps me understand what people really think.", role: "Startup Founder", emoji: "🚀" },
+const TESTIMONIALS_REMOVED = true; // testimonials hidden until real beta users
+
+const WHY = [
+  {
+    icon: "🚫",
+    title: "No followers",
+    body: "There's no follower count to chase and no popularity to perform for. Say what's true, not what gets likes.",
+  },
+  {
+    icon: "🎭",
+    title: "No popularity contests",
+    body: "Every handle looks the same. No verified badges, no clout — just honest words on a level field.",
+  },
+  {
+    icon: "🕶️",
+    title: "No real names",
+    body: "You're a random handle and nothing else. Nothing you share is ever tied back to the real you.",
+  },
 ];
 
 const FAQS = [

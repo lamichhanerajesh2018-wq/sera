@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toggleLike, toggleReaction } from "@/app/actions/posts";
 import ReportButton from "@/components/ReportButton";
 import type { Post } from "@/lib/types";
@@ -22,13 +23,24 @@ function timeAgo(iso: string): string {
   return `${d}d`;
 }
 
-export default function PostCard({ post }: { post: Post }) {
+export default function PostCard({ post, readOnly = false }: { post: Post; readOnly?: boolean }) {
+  const router = useRouter();
   const [liked, setLiked] = useState(!!post.likedByMe);
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [reactions, setReactions] = useState<Record<string, number>>(post.reactions || {});
   const [pickerOpen, setPickerOpen] = useState(false);
 
+  // Guests can read, but any interaction sends them to sign up.
+  function gate(): boolean {
+    if (readOnly) {
+      router.push("/signup");
+      return true;
+    }
+    return false;
+  }
+
   async function onLike() {
+    if (gate()) return;
     // optimistic
     setLiked((v) => !v);
     setLikeCount((c) => c + (liked ? -1 : 1));
@@ -36,6 +48,7 @@ export default function PostCard({ post }: { post: Post }) {
   }
 
   async function onReact(emoji: string) {
+    if (gate()) return;
     setPickerOpen(false);
     setReactions((r) => {
       const next = { ...r };
@@ -91,23 +104,25 @@ export default function PostCard({ post }: { post: Post }) {
         </button>
 
         <button
-          onClick={() => setPickerOpen((v) => !v)}
+          onClick={() => (readOnly ? router.push("/signup") : setPickerOpen((v) => !v))}
           className="flex items-center gap-1.5 transition-colors hover:text-primary"
         >
           <span>😊</span> React
         </button>
 
         <Link
-          href={`/post/${post._id}`}
+          href={readOnly ? "/signup" : `/post/${post._id}`}
           className="flex items-center gap-1.5 transition-colors hover:text-primary"
         >
           <span>💬</span>
           {post.commentCount > 0 ? post.commentCount : "Reply"}
         </Link>
 
-        <div className="ml-auto">
-          <ReportButton targetType="post" targetId={post._id} />
-        </div>
+        {!readOnly && (
+          <div className="ml-auto">
+            <ReportButton targetType="post" targetId={post._id} />
+          </div>
+        )}
 
         {/* emoji picker */}
         {pickerOpen && (
