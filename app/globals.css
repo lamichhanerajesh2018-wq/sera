@@ -219,3 +219,22 @@
     text-underline-offset: 2px;
   }
 }
+
+/* Feed three-column shell. Plain top-level CSS (outside @layer) so the media
+   query reliably applies; Tailwind's lg: variant isn't generating in this project. */
+.feed-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+}
+.feed-rail {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .feed-shell {
+    grid-template-columns: 13rem minmax(0, 1fr) 20rem;
+  }
+  .feed-rail {
+    display: block;
+  }
+}

@@ -9,6 +9,13 @@ import AppBar from "@/components/AppBar";
 import Logo from "@/components/Logo";
 import PostComposer from "@/components/PostComposer";
 import PostCard from "@/components/PostCard";
+import FeedSidebarLeft from "@/components/FeedSidebarLeft";
+import FeedSidebarRight from "@/components/FeedSidebarRight";
+import { listCommunities, listMyCommunities } from "@/app/actions/communities";
+
+// Auth state must be read fresh per request, never served from a cached render,
+// or a guest-cached page can hydrate against a signed-in client (and vice-versa).
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Confessions — Sera",
@@ -20,7 +27,11 @@ export default async function FeedPage() {
   const handle = user
     ? (user as any).username || (user as any).displayUsername || "anon"
     : null;
-  const posts = await listFeed();
+  const [posts, communities, myCommunities] = await Promise.all([
+    listFeed(),
+    listCommunities(),
+    listMyCommunities(),
+  ]);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -29,7 +40,7 @@ export default async function FeedPage() {
         <AppBar handle={handle} />
       ) : (
         <header className="sticky top-0 z-50 border-b border-border/50 bg-background/70 backdrop-blur-xl">
-          <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-4 py-3">
+          <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3">
             <Logo href="/" size="sm" />
             <div className="flex items-center gap-2 text-sm">
               <Link
@@ -49,7 +60,18 @@ export default async function FeedPage() {
         </header>
       )}
 
-      <main className="mx-auto w-full max-w-2xl px-4 py-6">
+      {/* 3-column shell: nav rail | feed | discovery rail. Rails collapse below 1024px. */}
+      <div
+        className="feed-shell mx-auto w-full max-w-6xl px-4 py-6"
+        style={{ display: "grid", gridTemplateColumns: "13rem minmax(0,1fr) 20rem", gap: "1.5rem" }}
+      >
+        <FeedSidebarLeft
+          handle={handle}
+          myCommunities={myCommunities}
+          popularCommunities={communities}
+        />
+
+        <main className="min-w-0">
         {handle ? (
           <PostComposer handle={handle} />
         ) : (
@@ -80,7 +102,10 @@ export default async function FeedPage() {
             posts.map((post) => <PostCard key={post._id} post={post} readOnly={!handle} />)
           )}
         </div>
-      </main>
+        </main>
+
+        <FeedSidebarRight communities={communities} signedIn={!!handle} />
+      </div>
     </div>
   );
 }

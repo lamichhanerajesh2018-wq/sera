@@ -142,3 +142,42 @@ export async function getCommunityBySlug(slug: string): Promise<Community | null
 
   return { ...toCommunity(doc), isMember };
 }
+
+// Communities the current user has joined, newest membership first. Used by the
+// feed's left rail for quick access. Empty for guests.
+export async function listMyCommunities(): Promise<Community[]> {
+  const user = await getCurrentUser();
+  if (!user) return [];
+
+  const memberships = await db
+    .collection("memberships")
+    .find({ userId: user.id })
+    .sort({ joinedAt: -1 })
+    .limit(50)
+    .toArray();
+
+  if (memberships.length === 0) return [];
+
+  const ids = memberships
+    .map((m) => {
+      try {
+        return new ObjectId(m.communityId);
+      } catch {
+        return null;
+      }
+    })
+    .filter((x): x is ObjectId => x !== null);
+
+  const docs = await db
+    .collection("communities")
+    .find({ _id: { $in: ids } })
+    .toArray();
+
+  // Preserve membership recency order.
+  const order = new Map(memberships.map((m, i) => [m.communityId, i]));
+  docs.sort(
+    (a, b) => (order.get(a._id.toString()) ?? 0) - (order.get(b._id.toString()) ?? 0)
+  );
+
+  return docs.map((d) => ({ ...toCommunity(d), isMember: true }));
+}

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toggleLike, toggleReaction } from "@/app/actions/posts";
 import ReportButton from "@/components/ReportButton";
+import PostShare from "@/components/PostShare";
 import type { Post } from "@/lib/types";
 
 const EMOJIS = ["🔥", "😂", "😮", "💜", "😢"];
@@ -111,12 +112,24 @@ export default function PostCard({ post, readOnly = false }: { post: Post; readO
         </button>
 
         <Link
-          href={readOnly ? "/signup" : `/post/${post._id}`}
+          href={`/post/${post._id}`}
+          onClick={(e) => {
+            if (readOnly) {
+              e.preventDefault();
+              router.push("/signup");
+            }
+          }}
           className="flex items-center gap-1.5 transition-colors hover:text-primary"
         >
           <span>💬</span>
           {post.commentCount > 0 ? post.commentCount : "Reply"}
         </Link>
+
+        <PostShare
+          postId={post._id}
+          authorUsername={post.authorUsername}
+          content={post.content}
+        />
 
         {!readOnly && (
           <div className="ml-auto">

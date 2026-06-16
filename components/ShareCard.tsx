@@ -34,7 +34,7 @@ function escapeXml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-function buildSvg(message: string, handle: string): string {
+function buildSvg(message: string, handle: string, variant: "question" | "post"): string {
   const W = 1080;
   const H = 1080;
   const lines = wrapText(message, 28);
@@ -48,6 +48,10 @@ function buildSvg(message: string, handle: string): string {
     )
     .join("");
 
+  const eyebrow = variant === "post" ? "anonymous confession" : "anonymous message";
+  const footTop = variant === "post" ? `by @${escapeXml(handle)}` : `to @${escapeXml(handle)}`;
+  const footBottom = variant === "post" ? "read more on sera" : "send yours on sera";
+
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
@@ -60,28 +64,30 @@ function buildSvg(message: string, handle: string): string {
   <rect x="60" y="60" width="${W - 120}" height="${H - 120}" rx="48" fill="none" stroke="#3a322c" stroke-width="2"/>
 
   <text x="${W / 2}" y="170" text-anchor="middle" fill="#e0a458" font-family="Georgia, serif" font-size="40" font-weight="600" letter-spacing="8">SERA</text>
-  <text x="${W / 2}" y="240" text-anchor="middle" fill="#8a7d70" font-family="Helvetica, Arial, sans-serif" font-size="24">anonymous message</text>
+  <text x="${W / 2}" y="240" text-anchor="middle" fill="#8a7d70" font-family="Helvetica, Arial, sans-serif" font-size="24">${eyebrow}</text>
 
   <text x="${W / 2}" y="330" text-anchor="middle" fill="#e0a458" font-size="60">&#10077;</text>
 
   ${textEls}
 
-  <text x="${W / 2}" y="${H - 150}" text-anchor="middle" fill="#c8bcae" font-family="Helvetica, Arial, sans-serif" font-size="28">to @${escapeXml(handle)}</text>
-  <text x="${W / 2}" y="${H - 100}" text-anchor="middle" fill="#8a7d70" font-family="Helvetica, Arial, sans-serif" font-size="24">send yours on sera</text>
+  <text x="${W / 2}" y="${H - 150}" text-anchor="middle" fill="#c8bcae" font-family="Helvetica, Arial, sans-serif" font-size="28">${footTop}</text>
+  <text x="${W / 2}" y="${H - 100}" text-anchor="middle" fill="#8a7d70" font-family="Helvetica, Arial, sans-serif" font-size="24">${footBottom}</text>
 </svg>`.trim();
 }
 
 export default function ShareCard({
   message,
   handle,
+  variant = "question",
   onClose,
 }: {
   message: string;
   handle: string;
+  variant?: "question" | "post";
   onClose: () => void;
 }) {
   const [downloading, setDownloading] = useState(false);
-  const svg = buildSvg(message, handle);
+  const svg = buildSvg(message, handle, variant);
   const previewRef = useRef<HTMLDivElement>(null);
 
   async function download() {
