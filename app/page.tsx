@@ -2,6 +2,7 @@ import Link from "next/link";
 import HeroWhisper from "@/components/HeroWhisper";
 import Reveal from "@/components/Reveal";
 import Logo from "@/components/Logo";
+import InstallButton from "@/components/InstallButton";
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
             <a href="#faq" className="transition-colors hover:text-foreground">FAQ</a>
           </nav>
           <div className="flex items-center gap-2 text-sm">
+            <InstallButton className="hidden rounded-full border border-border px-4 py-2 text-muted-foreground transition-colors hover:text-foreground sm:inline-flex" />
             <Link
               href="/login"
               className="rounded-full px-4 py-2 text-muted-foreground transition-colors hover:text-foreground"

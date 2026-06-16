@@ -7,6 +7,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { askQuestion } from "@/app/actions/questions";
+import { track } from "@/components/PostHogProvider";
 
 const MAX = 1000;
 
@@ -38,6 +39,7 @@ export default function AskForm({
       }
       setContent("");
       setSent(true);
+      track("message_sent", { signed_in: signedIn });
     });
   }
 

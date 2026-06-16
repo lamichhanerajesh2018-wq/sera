@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { reserveUsername, logSignup, createAnonCredentials } from "@/app/actions/signup";
+import { track } from "@/components/PostHogProvider";
 
 type Mode = "recoverable" | "anonymous";
 
@@ -63,6 +64,8 @@ export default function SignupForm() {
       /* account already created */
     }
 
+    track("signup_completed", { mode: "recoverable", referred: !!ref });
+
     // Hard navigation guarantees a clean load of the authenticated app even if
     // client-side routing gets stuck after the session cookie is set.
     window.location.assign("/feed");
@@ -93,6 +96,8 @@ export default function SignupForm() {
     } catch {
       /* account already created */
     }
+
+    track("signup_completed", { mode: "anonymous", referred: !!ref });
 
     // Show the recovery code before sending them in — this is the ONLY time
     // it's ever visible.

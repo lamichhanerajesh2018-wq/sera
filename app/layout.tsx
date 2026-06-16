@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
+import PostHogProvider from "@/components/PostHogProvider";
 
 // Body: Inter — clean, highly readable for a content-heavy social feed.
 const inter = Inter({
@@ -54,7 +56,9 @@ export default function RootLayout({
       className={`dark ${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+        <Suspense fallback={null}>
+          <PostHogProvider>{children}</PostHogProvider>
+        </Suspense>
         <ServiceWorkerRegistrar />
       </body>
     </html>

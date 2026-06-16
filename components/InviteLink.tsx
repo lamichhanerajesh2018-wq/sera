@@ -4,6 +4,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/components/PostHogProvider";
 
 export default function InviteLink({ handle }: { handle: string }) {
   const [copied, setCopied] = useState(false);
@@ -17,6 +18,7 @@ export default function InviteLink({ handle }: { handle: string }) {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
+      track("invite_copied");
       setTimeout(() => setCopied(false), 1500);
     } catch {
       /* clipboard blocked; ignore */
