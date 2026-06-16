@@ -4,6 +4,8 @@ import Reveal from "@/components/Reveal";
 import Logo from "@/components/Logo";
 import InstallButton from "@/components/InstallButton";
 
+<meta name="google-site-verification" content="CisPtmyEZv29m8qySPyEyYRjDnulSwtc88xjpgJGCcA" />
+
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
