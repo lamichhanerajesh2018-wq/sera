@@ -30,10 +30,15 @@ export const auth = betterAuth({
     async sendVerificationEmail({ user, url }) {
       // Skip placeholder emails used by pure-anonymous accounts.
       if (!user.email || user.email.endsWith("@anon.sera.local")) return;
-      await sendEmail({
+      // Fire-and-forget: never let a slow or failing email provider block or
+      // hang the signup. The account is already created; the email is a
+      // best-effort convenience for later recovery.
+      sendEmail({
         to: user.email,
         subject: "Verify your email for Sera",
         html: verificationEmailHtml(url),
+      }).catch((err) => {
+        console.error("[auth] verification email failed:", err);
       });
     },
   },

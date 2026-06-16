@@ -56,14 +56,16 @@ export default function SignupForm() {
       return;
     }
 
+    // Record signup + referral, but never let it block entry to the app.
     try {
       await logSignup(handle, ref);
     } catch {
       /* account already created */
     }
 
-    router.push("/feed");
-    router.refresh();
+    // Hard navigation guarantees a clean load of the authenticated app even if
+    // client-side routing gets stuck after the session cookie is set.
+    window.location.assign("/feed");
   }
 
   // ---- pure anonymous signup (instant, no email, recovery code) ----------
@@ -133,8 +135,7 @@ export default function SignupForm() {
         <button
           type="button"
           onClick={() => {
-            router.push("/feed");
-            router.refresh();
+            window.location.assign("/feed");
           }}
           className="h-11 w-full rounded-full bg-primary font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >

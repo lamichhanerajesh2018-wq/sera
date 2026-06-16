@@ -27,9 +27,16 @@ export async function sendEmail({ to, subject, html }: SendArgs): Promise<void> 
     console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
     return;
   }
-  const { error } = await resend.emails.send({ from, to, subject, html });
-  if (error) {
-    throw new Error(`Resend failed: ${error.message}`);
+  try {
+    const { error } = await resend.emails.send({ from, to, subject, html });
+    if (error) {
+      // Log but don't throw — a failed email must never break signup. With the
+      // free onboarding@resend.dev sender, delivery only works to your own
+      // verified address; other recipients fail here and are logged.
+      console.error("[email] Resend send failed:", error.message);
+    }
+  } catch (err) {
+    console.error("[email] Resend threw:", err);
   }
 }
 
