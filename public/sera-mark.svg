@@ -1,0 +1,27 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sera">
+  <!-- Flowing "S" mark inspired by the Sera brand: two interlocking ribbons
+       forming an S inside an implied circle. Uses currentColor so it inherits
+       the page's primary (candle-amber) color. -->
+  <path
+    d="M70 28
+       C70 18 60 13 49 13
+       C34 13 24 23 24 37
+       C24 49 33 55 47 59
+       C58 62 64 65 64 72
+       C64 80 56 85 47 85
+       C36 85 30 79 30 71"
+    stroke="currentColor"
+    stroke-width="8.5"
+    stroke-linecap="round"
+    fill="none"
+  />
+  <!-- subtle accent swoosh tail, echoing the logo's upper curl -->
+  <path
+    d="M58 16 C68 18 75 24 78 33"
+    stroke="currentColor"
+    stroke-width="5"
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.55"
+  />
+</svg>
