@@ -58,6 +58,9 @@ export default function Home() {
           <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
             Share confessions, receive anonymous messages, join communities, and
             speak freely — without ever revealing your identity.
+            No real names.No phone number.No followers.
+
+
           </p>
         </Reveal>
 
@@ -67,7 +70,7 @@ export default function Home() {
               href="/signup"
               className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
             >
-              Create your Sera ID
+              Get Your Anonymous Identity
               <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
             <Link
@@ -427,7 +430,7 @@ export default function Home() {
           <div className="relative overflow-hidden rounded-[32px] border border-border bg-card px-8 py-14 text-center sm:py-16">
             <div
               aria-hidden
-              className="pointer-events-none absolute left-1/2 top-0 h-72 w-[640px] max-w-full -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]"
+              className="pointer-events-none absolute left-1/2 top-0 h-72 w-160 max-w-full -translate-x-1/2 rounded-full bg-primary/10 blur-[120px]"
             />
             <div className="relative mx-auto max-w-xl">
               <h2 className="font-display text-3xl font-medium tracking-tight sm:text-5xl">
@@ -455,13 +458,34 @@ export default function Home() {
         <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-8 px-6 py-14 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <Logo href={null} size="sm" />
-            <p className="mt-3 max-w-[14rem] text-sm leading-6 text-muted-foreground">
+            <p className="mt-3 max-w-56 text-sm leading-6 text-muted-foreground">
               Speak freely. Stay unseen.
             </p>
           </div>
-          <FooterCol title="Product" links={["Features", "Communities", "Confessions", "Anonymous Chat"]} />
-          <FooterCol title="Company" links={["About", "Blog", "Careers"]} />
-          <FooterCol title="Legal" links={["Privacy", "Terms", "Guidelines"]} />
+          <FooterCol
+            title="Product"
+            links={[
+              { label: "Confessions", href: "/feed" },
+              { label: "Communities", href: "/communities" },
+              { label: "Anonymous Chat", href: "/chat" },
+              { label: "Inbox", href: "/inbox" },
+            ]}
+          />
+          <FooterCol
+            title="Account"
+            links={[
+              { label: "Sign up", href: "/signup" },
+              { label: "Sign in", href: "/login" },
+            ]}
+          />
+          <FooterCol
+            title="Legal"
+            links={[
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
+              { label: "Guidelines", href: "/guidelines" },
+            ]}
+          />
         </div>
         <div className="border-t border-border">
           <p className="mx-auto w-full max-w-6xl px-6 py-6 text-center text-xs text-muted-foreground/70">
@@ -502,14 +526,22 @@ function ShowcaseCard({
   );
 }
 
-function FooterCol({ title, links }: { title: string; links: string[] }) {
+function FooterCol({
+  title,
+  links,
+}: {
+  title: string;
+  links: { label: string; href: string }[];
+}) {
   return (
     <div>
       <p className="text-sm font-medium">{title}</p>
       <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
         {links.map((l) => (
-          <li key={l}>
-            <span className="cursor-pointer transition-colors hover:text-foreground">{l}</span>
+          <li key={l.label}>
+            <Link href={l.href} className="transition-colors hover:text-foreground">
+              {l.label}
+            </Link>
           </li>
         ))}
       </ul>

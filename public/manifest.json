@@ -1,0 +1,44 @@
+{
+  "name": "Sera — Speak freely. Stay unseen.",
+  "short_name": "Sera",
+  "description": "An anonymous social network. Share confessions, join communities, and talk freely — without ever revealing who you are.",
+  "start_url": "/feed",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#161210",
+  "theme_color": "#161210",
+  "categories": ["social", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Your inbox",
+      "short_name": "Inbox",
+      "url": "/inbox"
+    },
+    {
+      "name": "Confessions feed",
+      "short_name": "Feed",
+      "url": "/feed"
+    }
+  ]
+}
