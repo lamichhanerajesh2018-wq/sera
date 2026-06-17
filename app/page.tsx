@@ -4,6 +4,7 @@ import HeroWhisper from "@/components/HeroWhisper";
 import Reveal from "@/components/Reveal";
 import Logo from "@/components/Logo";
 import InstallButton from "@/components/InstallButton";
+import { getPublicStats, formatStat } from "@/app/actions/public-stats";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://sera.social";
@@ -55,7 +56,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  // Real, live counts for the stats bar — never invented figures.
+  const stats = await getPublicStats();
+  const STATS = [
+    { value: `${formatStat(stats.posts)}`, label: "Anonymous posts" },
+    { value: `${formatStat(stats.conversations)}`, label: "Conversations" },
+    { value: `${formatStat(stats.communities)}`, label: "Communities" },
+    { value: "100%", label: "Anonymous" },
+  ];
+
   // JSON-LD structured data for SEO (Organization + WebSite + FAQ).
   const jsonLd = {
     "@context": "https://schema.org",
@@ -139,14 +149,15 @@ export default function Home() {
 
         <Reveal delay={60}>
           <h1 className="mx-auto max-w-3xl font-display text-4xl font-medium leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-            The internet&apos;s safe space for anonymous conversations
+            Get honest, anonymous messages from anyone
           </h1>
         </Reveal>
 
         <Reveal delay={120}>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
-            Share confessions, receive anonymous messages, join communities, and
-            speak freely — without ever revealing your identity.
+            Share your Sera link in your bio or story. Friends, followers, anyone can
+            message you anonymously — no login, no trace. Plus confessions, communities
+            and private chat.
           </p>
         </Reveal>
 
@@ -166,7 +177,7 @@ export default function Home() {
               href="/signup"
               className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
             >
-              Get Your Anonymous Identity
+              Get your anonymous link
               <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
             <Link
@@ -178,10 +189,9 @@ export default function Home() {
           </div>
         </Reveal>
 
-        <Reveal delay={240}>
-          <p className="mt-7 text-sm text-muted-foreground">
-            <span className="tracking-wide text-primary">★</span> Loved by people who want
-            to be heard, not seen
+        <Reveal delay={210}>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Free · takes 10 seconds · no phone number
           </p>
         </Reveal>
 
@@ -242,6 +252,64 @@ export default function Home() {
                 ))}
               </ul>
             </ShowcaseCard>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ---------- VIRAL LINK SPOTLIGHT ---------- */}
+      <section className="mx-auto w-full max-w-4xl px-6 pb-8">
+        <Reveal>
+          <div className="relative overflow-hidden rounded-[32px] border border-primary/30 bg-primary/5 px-6 py-10 text-center sm:px-12 sm:py-14">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-0 h-60 w-[420px] max-w-full -translate-x-1/2 rounded-full bg-primary/15 blur-[110px]"
+            />
+            <div className="relative">
+              <p className="eyebrow">The viral part</p>
+              <h2 className="mt-4 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+                Share your anonymous link
+              </h2>
+              <p className="mx-auto mt-3 max-w-md leading-7 text-muted-foreground">
+                Get a link like the one below. Drop it in your Instagram story, TikTok bio
+                or WhatsApp — anyone can message you anonymously.
+              </p>
+
+              {/* link chip */}
+              <div className="mx-auto mt-7 flex max-w-md items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-2 sm:px-4">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-base">🔗</span>
+                <span className="min-w-0 flex-1 truncate text-left font-mono text-sm text-muted-foreground">
+                  sera.social/ask/<span className="text-foreground">you</span>
+                </span>
+                <Link
+                  href="/signup"
+                  className="shrink-0 rounded-full bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                >
+                  Claim yours
+                </Link>
+              </div>
+
+              {/* 3 steps */}
+              <div className="mx-auto mt-8 grid max-w-lg grid-cols-3 gap-3 text-center">
+                {[
+                  { n: "1", icon: "🔗", t: "Get your link" },
+                  { n: "2", icon: "📲", t: "Share to your story" },
+                  { n: "3", icon: "💌", t: "Read anonymous replies" },
+                ].map((s) => (
+                  <div key={s.n} className="rounded-2xl border border-border bg-card/60 p-3">
+                    <div className="text-xl">{s.icon}</div>
+                    <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{s.t}</p>
+                  </div>
+                ))}
+              </div>
+
+              <Link
+                href="/signup"
+                className="group mt-8 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
+              >
+                Get your anonymous link
+                <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
+              </Link>
+            </div>
           </div>
         </Reveal>
       </section>
@@ -727,13 +795,6 @@ function FooterCol({
 }
 
 /* ---------- content ---------- */
-const STATS = [
-  { value: "Anonymous", label: "No real names, ever" },
-  { value: "Private", label: "IP addresses never stored raw" },
-  { value: "AI Moderated", label: "Harmful content blocked in real time" },
-  { value: "Identity-Free", label: "No phone, no followers" },
-];
-
 const FEATURES = [
   {
     icon: "✉️",

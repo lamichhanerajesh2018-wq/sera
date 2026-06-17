@@ -1,16 +1,12 @@
 // app/actions/admin-stats.ts
-// Read-only stats for the private admin dashboard. Gated by the same shared
-// ADMIN_SECRET as the reports dashboard (passed as ?key= in the URL). Returns a
-// snapshot of users, activity and content counts.
+// Read-only stats for the private admin dashboard. Access is gated by the admin
+// session cookie (set at /admin/login). Returns a snapshot of users, activity
+// and content counts.
 "use server";
 
 import { db } from "@/lib/mongodb";
 import { ONLINE_WINDOW_MS } from "@/lib/presence";
-
-function requireAdmin(adminKey: string): boolean {
-  const secret = process.env.ADMIN_SECRET;
-  return !!secret && adminKey === secret;
-}
+import { isAdmin } from "@/lib/admin-auth";
 
 export interface AdminStats {
   totalUsers: number;
@@ -31,8 +27,8 @@ export interface AdminStats {
   signupsByDay: { day: string; count: number }[];
 }
 
-export async function getAdminStats(adminKey: string): Promise<AdminStats | null> {
-  if (!requireAdmin(adminKey)) return null;
+export async function getAdminStats(): Promise<AdminStats | null> {
+  if (!(await isAdmin())) return null;
 
   const now = Date.now();
   const dayAgo = new Date(now - 24 * 60 * 60 * 1000);

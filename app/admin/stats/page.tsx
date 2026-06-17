@@ -1,11 +1,14 @@
 // app/admin/stats/page.tsx
-// Private admin dashboard. Gated by ?key=ADMIN_SECRET in the URL (same secret as
-// the reports page). Shows user counts, activity, and content totals at a glance.
+// Private admin dashboard. Access is gated by the admin session cookie; visitors
+// without it are sent to /admin/login. Shows user counts, activity, and content
+// totals at a glance.
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { isAdmin } from "@/lib/admin-auth";
 import { getAdminStats } from "@/app/actions/admin-stats";
+import { logoutAdmin } from "@/app/actions/admin-auth";
 
 export const metadata = { title: "Dashboard — Sera admin" };
-
 export const dynamic = "force-dynamic";
 
 function Stat({
@@ -36,26 +39,11 @@ function Stat({
   );
 }
 
-export default async function AdminStatsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ key?: string }>;
-}) {
-  const { key } = await searchParams;
-  const adminKey = key ?? "";
+export default async function AdminStatsPage() {
+  if (!(await isAdmin())) redirect("/admin/login");
 
-  const stats = await getAdminStats(adminKey);
-
-  if (!stats) {
-    return (
-      <main className="mx-auto w-full max-w-md px-6 py-24 text-center">
-        <h1 className="font-display text-2xl font-medium">Admin access</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Add <code>?key=YOUR_ADMIN_SECRET</code> to the URL to view the dashboard.
-        </p>
-      </main>
-    );
-  }
+  const stats = await getAdminStats();
+  if (!stats) redirect("/admin/login");
 
   const maxSignup = Math.max(1, ...stats.signupsByDay.map((d) => d.count));
 
@@ -64,12 +52,22 @@ export default async function AdminStatsPage({
       <header className="border-b border-border bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-4 py-4">
           <h1 className="font-display text-xl font-semibold tracking-tight">Dashboard</h1>
-          <Link
-            href={`/admin/reports?key=${encodeURIComponent(adminKey)}`}
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Reports{stats.openReports > 0 ? ` (${stats.openReports})` : ""} →
-          </Link>
+          <div className="flex items-center gap-4 text-sm">
+            <Link
+              href="/admin/reports"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Reports{stats.openReports > 0 ? ` (${stats.openReports})` : ""} →
+            </Link>
+            <form action={logoutAdmin}>
+              <button
+                type="submit"
+                className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 

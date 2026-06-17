@@ -1,10 +1,16 @@
 // app/admin/reports/page.tsx
-// Moderator dashboard. Gated by ?key=ADMIN_SECRET in the URL. Lists reported
-// content with snapshot + reason, and lets the moderator dismiss or remove.
+// Moderator dashboard. Gated by the admin session cookie (sign in at
+// /admin/login). Lists reported content with snapshot + reason, and lets the
+// moderator dismiss or remove.
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { isAdmin } from "@/lib/admin-auth";
 import { listReports } from "@/app/actions/reports";
+import { logoutAdmin } from "@/app/actions/admin-auth";
 import ReportActions from "@/components/ReportActions";
 
 export const metadata = { title: "Reports — Sera admin" };
+export const dynamic = "force-dynamic";
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -22,38 +28,35 @@ const STATUS_STYLE: Record<string, string> = {
   dismissed: "border-border bg-background/40 text-muted-foreground",
 };
 
-export default async function AdminReportsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ key?: string }>;
-}) {
-  const { key } = await searchParams;
-  const adminKey = key ?? "";
+export default async function AdminReportsPage() {
+  if (!(await isAdmin())) redirect("/admin/login");
 
-  const reports = await listReports(adminKey);
-  const authorized = !!adminKey && reports !== null;
-
-  // listReports returns [] for bad keys, so distinguish "no access" from "no reports"
-  // by re-checking: an empty array with no key means unauthorized.
-  if (!adminKey) {
-    return (
-      <main className="mx-auto w-full max-w-md px-6 py-24 text-center">
-        <h1 className="font-display text-2xl font-medium">Moderator access</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Add <code>?key=YOUR_ADMIN_SECRET</code> to the URL to view reports.
-        </p>
-      </main>
-    );
-  }
+  const reports = await listReports();
 
   return (
     <div className="flex flex-1 flex-col">
       <header className="border-b border-border bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-4">
           <h1 className="font-display text-xl font-semibold tracking-tight">Reports</h1>
-          <span className="text-sm text-muted-foreground">
-            {reports.filter((r) => r.status === "open").length} open
-          </span>
+          <div className="flex items-center gap-4 text-sm">
+            <Link
+              href="/admin/stats"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              ← Dashboard
+            </Link>
+            <span className="text-muted-foreground">
+              {reports.filter((r) => r.status === "open").length} open
+            </span>
+            <form action={logoutAdmin}>
+              <button
+                type="submit"
+                className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
       </header>
 
@@ -62,9 +65,7 @@ export default async function AdminReportsPage({
           <div className="rounded-3xl border border-dashed border-border bg-card/40 px-6 py-16 text-center">
             <p className="text-3xl">🛡️</p>
             <p className="mt-3 font-display text-lg font-medium">All clear</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              No reports — or the admin key is wrong.
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">No reports right now.</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -79,9 +80,7 @@ export default async function AdminReportsPage({
                       {r.targetType} · {timeAgo(r.createdAt)}
                     </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">
-                    by @{r.authorUsername}
-                  </span>
+                  <span className="text-xs text-muted-foreground">by @{r.authorUsername}</span>
                 </div>
 
                 <p className="mt-3 rounded-2xl border border-border bg-background/40 p-3 text-sm leading-6">
@@ -95,7 +94,7 @@ export default async function AdminReportsPage({
 
                 {r.status === "open" && (
                   <div className="mt-4 flex justify-end">
-                    <ReportActions adminKey={adminKey} reportId={r._id} />
+                    <ReportActions reportId={r._id} />
                   </div>
                 )}
               </div>

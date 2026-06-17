@@ -7,10 +7,8 @@ import { useRouter } from "next/navigation";
 import { dismissReport, removeReportedContent } from "@/app/actions/reports";
 
 export default function ReportActions({
-  adminKey,
   reportId,
 }: {
-  adminKey: string;
   reportId: string;
 }) {
   const router = useRouter();
@@ -18,14 +16,14 @@ export default function ReportActions({
 
   function dismiss() {
     startTransition(async () => {
-      await dismissReport(adminKey, reportId);
+      await dismissReport(reportId);
       router.refresh();
     });
   }
 
   function remove() {
     startTransition(async () => {
-      await removeReportedContent(adminKey, reportId);
+      await removeReportedContent(reportId);
       router.refresh();
     });
   }

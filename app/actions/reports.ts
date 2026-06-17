@@ -3,6 +3,7 @@
 
 import { db } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/session";
+import { isAdmin } from "@/lib/admin-auth";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 import type { Report, ReportTarget } from "@/lib/types";
@@ -71,15 +72,14 @@ export async function submitReport(
 }
 
 // --- Moderator / admin actions ---
-// Gated by a simple shared admin secret in the env (set ADMIN_SECRET in .env.local).
+// Gated by the admin session cookie (set at /admin/login).
 
-async function requireAdmin(adminKey: string): Promise<boolean> {
-  const secret = process.env.ADMIN_SECRET;
-  return !!secret && adminKey === secret;
+async function requireAdmin(): Promise<boolean> {
+  return isAdmin();
 }
 
-export async function listReports(adminKey: string): Promise<Report[]> {
-  if (!(await requireAdmin(adminKey))) return [];
+export async function listReports(): Promise<Report[]> {
+  if (!(await requireAdmin())) return [];
   const docs = await db
     .collection("reports")
     .find({})
@@ -90,14 +90,14 @@ export async function listReports(adminKey: string): Promise<Report[]> {
 }
 
 // Count of open reports — for an admin badge.
-export async function openReportCount(adminKey: string): Promise<number> {
-  if (!(await requireAdmin(adminKey))) return 0;
+export async function openReportCount(): Promise<number> {
+  if (!(await requireAdmin())) return 0;
   return db.collection("reports").countDocuments({ status: "open" });
 }
 
 // Dismiss a report (content is fine).
-export async function dismissReport(adminKey: string, reportId: string) {
-  if (!(await requireAdmin(adminKey))) return { error: "Not authorized." };
+export async function dismissReport(reportId: string) {
+  if (!(await requireAdmin())) return { error: "Not authorized." };
   if (!ObjectId.isValid(reportId)) return { error: "Invalid report." };
   await db.collection("reports").updateOne(
     { _id: new ObjectId(reportId) },
@@ -108,8 +108,8 @@ export async function dismissReport(adminKey: string, reportId: string) {
 }
 
 // Remove the reported content and mark the report reviewed.
-export async function removeReportedContent(adminKey: string, reportId: string) {
-  if (!(await requireAdmin(adminKey))) return { error: "Not authorized." };
+export async function removeReportedContent(reportId: string) {
+  if (!(await requireAdmin())) return { error: "Not authorized." };
   if (!ObjectId.isValid(reportId)) return { error: "Invalid report." };
 
   const report = await db.collection("reports").findOne({ _id: new ObjectId(reportId) });
