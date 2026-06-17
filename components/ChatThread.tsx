@@ -21,6 +21,7 @@ export default function ChatThread({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Subscribe to realtime updates for this conversation.
@@ -51,17 +52,29 @@ export default function ChatThread({
     if (!text || sending) return;
 
     setSending(true);
+    setError(null);
     setDraft("");
 
-    const res = await sendMessage(conversationId, text);
-    if (res?.message) {
-      // Add our own message immediately (the channel also echoes it, but we
-      // dedupe by id above).
-      setMessages((prev) =>
-        prev.some((m) => m._id === res.message!._id) ? prev : [...prev, res.message!]
-      );
+    try {
+      const res = await sendMessage(conversationId, text);
+      if (res?.error) {
+        // Surface the reason (moderation block, blocked user, etc.) and put the
+        // text back so the user doesn't lose what they typed.
+        setError(res.error);
+        setDraft(text);
+      } else if (res?.message) {
+        // Add our own message immediately (the channel also echoes it, but we
+        // dedupe by id above).
+        setMessages((prev) =>
+          prev.some((m) => m._id === res.message!._id) ? prev : [...prev, res.message!]
+        );
+      }
+    } catch {
+      setError("Couldn't send. Check your connection and try again.");
+      setDraft(text);
+    } finally {
+      setSending(false);
     }
-    setSending(false);
   }
 
   return (
@@ -95,6 +108,9 @@ export default function ChatThread({
 
       {/* composer */}
       <div className="border-t border-border bg-background/70 px-4 py-3 backdrop-blur">
+        {error && (
+          <p className="mx-auto mb-2 max-w-2xl text-center text-xs text-destructive">{error}</p>
+        )}
         <div className="mx-auto flex max-w-2xl items-end gap-2">
           <textarea
             value={draft}
