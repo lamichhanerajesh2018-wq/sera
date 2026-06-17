@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
@@ -74,6 +75,25 @@ export default function LoginForm() {
       >
         {loading ? "Signing in…" : "Sign in"}
       </button>
+
+      <details className="rounded-xl border border-border bg-background/40 px-4 py-3 text-sm">
+        <summary className="cursor-pointer text-muted-foreground transition-colors hover:text-foreground">
+          Lost your password or recovery code?
+        </summary>
+        <p className="mt-3 leading-6 text-muted-foreground">
+          Sera accounts have no email, so there&apos;s no reset link. Your{" "}
+          <span className="text-foreground">recovery code</span> (shown once when you joined)
+          works in place of your password — enter it above with your handle to get back in.
+        </p>
+        <p className="mt-2 leading-6 text-muted-foreground">
+          If you&apos;ve lost both your password and your recovery code, the account can&apos;t be
+          recovered. You can{" "}
+          <Link href="/signup" className="text-primary underline-offset-4 hover:underline">
+            pick a new name
+          </Link>{" "}
+          and start fresh.
+        </p>
+      </details>
     </form>
   );
 }
