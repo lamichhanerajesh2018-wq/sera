@@ -16,7 +16,7 @@ export default function FeedSidebarRight({
   const top = communities.slice(0, 5);
 
   return (
-    <aside className="feed-rail" style={{ display: "block" }}>
+    <aside className="feed-rail">
       <div className="sticky top-24 space-y-4">
         {/* Discover groups */}
         <section className="rounded-3xl border border-border bg-card p-4">

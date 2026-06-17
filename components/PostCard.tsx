@@ -62,7 +62,7 @@ export default function PostCard({ post, readOnly = false }: { post: Post; readO
   const activeReactions = Object.entries(reactions).filter(([, n]) => n > 0);
 
   return (
-    <article className="rounded-3xl border border-border bg-card p-5">
+    <article className="min-w-0 rounded-3xl border border-border bg-card p-5">
       {/* header */}
       <div className="flex items-center gap-3">
         <Link href={`/u/${post.authorUsername}`} className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm">🕶️</Link>
@@ -78,7 +78,7 @@ export default function PostCard({ post, readOnly = false }: { post: Post; readO
       </div>
 
       {/* content */}
-      <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7">{post.content}</p>
+      <p className="mt-3 whitespace-pre-wrap break-words text-[15px] leading-7">{post.content}</p>
 
       {/* active reactions row */}
       {activeReactions.length > 0 && (

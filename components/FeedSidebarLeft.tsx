@@ -71,7 +71,7 @@ export default function FeedSidebarLeft({
   popularCommunities?: Community[];
 }) {
   return (
-    <aside className="feed-rail" style={{ display: "block" }}>
+    <aside className="feed-rail">
       <div className="sticky top-24 space-y-4">
         {handle ? (
           <>
