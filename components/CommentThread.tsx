@@ -4,6 +4,7 @@
 "use client";
 
 import { useState } from "react";
+import Avatar from "@/components/Avatar";
 import CommentForm from "@/components/CommentForm";
 import ReportButton from "@/components/ReportButton";
 import type { Comment } from "@/lib/types";
@@ -60,7 +61,7 @@ function CommentItem({
     <div>
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-center gap-2 text-sm">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs">🕶️</span>
+          <Avatar seed={comment.authorUsername} size={28} />
           <span className="truncate font-medium">@{comment.authorUsername}</span>
           <span className="shrink-0 text-muted-foreground">· {timeAgo(comment.createdAt)}</span>
         </div>

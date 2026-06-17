@@ -7,6 +7,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toggleLike, toggleReaction } from "@/app/actions/posts";
+import Avatar from "@/components/Avatar";
 import ReportButton from "@/components/ReportButton";
 import PostShare from "@/components/PostShare";
 import type { Post } from "@/lib/types";
@@ -65,7 +66,9 @@ export default function PostCard({ post, readOnly = false }: { post: Post; readO
     <article className="min-w-0 rounded-3xl border border-border bg-card p-4 sm:p-5">
       {/* header */}
       <div className="flex items-center gap-3">
-        <Link href={`/u/${post.authorUsername}`} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm">🕶️</Link>
+        <Link href={`/u/${post.authorUsername}`} className="shrink-0">
+          <Avatar seed={post.authorUsername} size={36} />
+        </Link>
         <div className="flex min-w-0 items-center gap-2 text-sm">
           <Link
             href={`/u/${post.authorUsername}`}

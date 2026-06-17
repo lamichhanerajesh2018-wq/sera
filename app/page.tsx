@@ -652,6 +652,7 @@ export default function Home() {
             links={[
               { label: "Sign up", href: "/signup" },
               { label: "Sign in", href: "/login" },
+              { label: "Contact", href: "/contact" },
             ]}
           />
           <FooterCol

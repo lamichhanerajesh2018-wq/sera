@@ -7,7 +7,10 @@ import { getCurrentUser } from "@/lib/session";
 import { getProfile, getProfilePosts } from "@/app/actions/profile";
 import { listPublicAnswers } from "@/app/actions/questions";
 import { amIBlocking } from "@/app/actions/blocks";
+import { getPresence } from "@/lib/presence";
 import AppBar from "@/components/AppBar";
+import Avatar from "@/components/Avatar";
+import PresenceDot from "@/components/PresenceDot";
 import PostCard from "@/components/PostCard";
 import MessageButton from "@/components/MessageButton";
 import BlockButton from "@/components/BlockButton";
@@ -45,6 +48,7 @@ export default async function ProfilePage({
   const posts = await getProfilePosts(profile.username);
   const answers = await listPublicAnswers(profile.username);
   const blocking = profile.isMe ? false : await amIBlocking(profile.username);
+  const presence = await getPresence(profile.username);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -61,18 +65,34 @@ export default async function ProfilePage({
         {/* profile header */}
         <div className="rounded-3xl border border-border bg-card p-6">
           <div className="flex items-center gap-4">
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-2xl">
-              🕶️
-            </span>
+            <div className="relative">
+              <Avatar seed={profile.avatarSeed} size={64} className="ring-1 ring-inset ring-primary/10" />
+              {!profile.isMe && (
+                <span className="absolute bottom-0.5 right-0.5">
+                  <PresenceDot username={profile.username} initial={presence} variant="dot" />
+                </span>
+              )}
+            </div>
             <div className="flex-1">
               <h1 className="font-display text-2xl font-medium">@{profile.username}</h1>
               <p className="mt-0.5 text-sm text-muted-foreground">
                 Anonymous · {profile.postCount} {profile.postCount === 1 ? "post" : "posts"}
                 {profile.joinedAt && ` · joined ${joinedLabel(profile.joinedAt)}`}
               </p>
+              {!profile.isMe && (
+                <div className="mt-1">
+                  <PresenceDot username={profile.username} initial={presence} />
+                </div>
+              )}
             </div>
             {profile.isMe ? (
               <div className="flex items-center gap-2">
+                <Link
+                  href="/settings/avatar"
+                  className="rounded-full border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Avatar
+                </Link>
                 <Link
                   href="/settings/invites"
                   className="rounded-full border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"

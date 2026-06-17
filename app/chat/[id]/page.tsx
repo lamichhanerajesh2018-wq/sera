@@ -4,6 +4,9 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { getConversation, listMessages } from "@/app/actions/chat";
+import { getPresence } from "@/lib/presence";
+import Avatar from "@/components/Avatar";
+import PresenceDot from "@/components/PresenceDot";
 import ChatThread from "@/components/ChatThread";
 
 export default async function ConversationPage({
@@ -20,6 +23,9 @@ export default async function ConversationPage({
   if (!convo) notFound();
 
   const messages = await listMessages(id);
+  const presence = convo.otherUsername
+    ? await getPresence(convo.otherUsername)
+    : { online: false, lastSeen: null };
 
   return (
     <div className="flex h-[100dvh] flex-col">
@@ -32,10 +38,14 @@ export default async function ConversationPage({
           >
             ←
           </Link>
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm">🕶️</span>
+          <Avatar seed={convo.otherUsername || "sera"} size={36} />
           <div>
             <p className="font-medium">@{convo.otherUsername}</p>
-            <p className="text-xs text-muted-foreground">Anonymous · end to end private</p>
+            {convo.otherUsername ? (
+              <PresenceDot username={convo.otherUsername} initial={presence} />
+            ) : (
+              <p className="text-xs text-muted-foreground">Anonymous · end to end private</p>
+            )}
           </div>
         </div>
       </header>

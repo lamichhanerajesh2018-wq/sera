@@ -3,6 +3,7 @@
 // mini identity card, quick links, their joined groups, popular groups and a
 // compact invite link. Guests get a few reasons to sign up plus popular groups.
 import Link from "next/link";
+import Avatar from "@/components/Avatar";
 import InviteLinkCompact from "@/components/InviteLinkCompact";
 import type { Community } from "@/lib/types";
 
@@ -80,9 +81,7 @@ export default function FeedSidebarLeft({
               href={`/u/${handle}`}
               className="flex items-center gap-3 rounded-3xl border border-border bg-card p-3 transition-colors hover:bg-muted/40"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm">
-                👻
-              </span>
+              <Avatar seed={handle} size={36} />
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">@{handle}</p>
                 <p className="text-xs text-muted-foreground">View profile</p>

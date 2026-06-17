@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import NotificationBell from "@/components/NotificationBell";
+import PresenceBeacon from "@/components/PresenceBeacon";
 import { LogoMark } from "@/components/Logo";
 import { Home, Users, MessageCircle, Mail } from "lucide-react";
 
@@ -28,6 +29,7 @@ export default function AppBar({ handle }: { handle: string }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/50 bg-background/70 backdrop-blur-xl">
+      <PresenceBeacon />
       <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
         {/* Brand */}
         <Link href="/feed" className="flex shrink-0 items-center gap-2">

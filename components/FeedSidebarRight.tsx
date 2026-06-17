@@ -86,7 +86,8 @@ export default function FeedSidebarRight({
         <p className="px-2 text-[11px] leading-relaxed text-muted-foreground/70">
           Sera ·{" "}
           <Link href="/privacy" className="hover:text-foreground">Privacy</Link> ·{" "}
-          <Link href="/guidelines" className="hover:text-foreground">Guidelines</Link>
+          <Link href="/guidelines" className="hover:text-foreground">Guidelines</Link> ·{" "}
+          <Link href="/contact" className="hover:text-foreground">Contact</Link>
         </p>
       </div>
     </aside>

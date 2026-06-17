@@ -3,6 +3,7 @@
 
 import { db } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/session";
+import { revalidatePath } from "next/cache";
 import type { Post } from "@/lib/types";
 
 export interface PublicProfile {
@@ -10,6 +11,7 @@ export interface PublicProfile {
   joinedAt: string | null;
   postCount: number;
   isMe: boolean;
+  avatarSeed: string;
 }
 
 function toPost(doc: any, likedByMe = false): Post {
@@ -59,7 +61,39 @@ export async function getProfile(username: string): Promise<PublicProfile | null
       : null,
     postCount,
     isMe: myUsername === userDoc.username,
+    avatarSeed: userDoc.avatarSeed || userDoc.username,
   };
+}
+
+// Read the current user's avatar seed (falls back to their handle).
+export async function getMyAvatarSeed(): Promise<string | null> {
+  const me = await getCurrentUser();
+  if (!me) return null;
+  const handle = (me as any).username || "";
+  const doc = await db.collection("user").findOne({ username: handle });
+  return (doc?.avatarSeed as string) || handle || null;
+}
+
+// Save a new avatar seed for the current user. The seed is just a short string
+// we hash to render the geometric avatar — it carries no personal data.
+export async function setMyAvatarSeed(seed: string): Promise<{ ok: boolean; error?: string }> {
+  const me = await getCurrentUser();
+  if (!me) return { ok: false, error: "You must be signed in." };
+
+  const clean = (seed || "").trim().slice(0, 64);
+  if (!clean) return { ok: false, error: "Pick an avatar first." };
+
+  const handle = (me as any).username || "";
+  await db.collection("user").updateOne(
+    { username: handle },
+    { $set: { avatarSeed: clean } }
+  );
+
+  // Refresh the surfaces that show the avatar.
+  revalidatePath("/feed");
+  revalidatePath(`/u/${handle}`);
+  revalidatePath("/settings/avatar");
+  return { ok: true };
 }
 
 // Posts authored by a given username, newest first.

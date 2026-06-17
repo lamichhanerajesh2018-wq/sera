@@ -54,7 +54,7 @@ export default function PostComposer({
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value.slice(0, MAX))}
-            placeholder={`What's on your mind, ${handle}? No name attached.`}
+            placeholder={`Share a thought. Stay anonymous.`}
             rows={3}
             className="w-full resize-none bg-transparent text-[15px] leading-7 outline-none placeholder:text-muted-foreground/60"
           />
