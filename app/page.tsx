@@ -4,7 +4,8 @@ import HeroWhisper from "@/components/HeroWhisper";
 import Reveal from "@/components/Reveal";
 import Logo from "@/components/Logo";
 import InstallButton from "@/components/InstallButton";
-import { getPublicStats, formatStat } from "@/app/actions/public-stats";
+import { getPublicStats } from "@/app/actions/public-stats";
+import { formatStat } from "@/lib/format";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://sera.social";
