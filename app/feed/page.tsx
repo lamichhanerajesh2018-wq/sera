@@ -61,10 +61,7 @@ export default async function FeedPage() {
       )}
 
       {/* 3-column shell: nav rail | feed | discovery rail. Rails collapse below 1024px. */}
-      <div
-        className="feed-shell mx-auto w-full max-w-6xl px-4 py-6"
-        style={{ display: "grid", gridTemplateColumns: "13rem minmax(0,1fr) 20rem", gap: "1.5rem" }}
-      >
+      <div className="feed-shell mx-auto w-full max-w-6xl px-4 py-6">
         <FeedSidebarLeft
           handle={handle}
           myCommunities={myCommunities}

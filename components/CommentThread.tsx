@@ -60,9 +60,9 @@ function CommentItem({
     <div>
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-center gap-2 text-sm">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs">🕶️</span>
-          <span className="font-medium">@{comment.authorUsername}</span>
-          <span className="text-muted-foreground">· {timeAgo(comment.createdAt)}</span>
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs">🕶️</span>
+          <span className="truncate font-medium">@{comment.authorUsername}</span>
+          <span className="shrink-0 text-muted-foreground">· {timeAgo(comment.createdAt)}</span>
         </div>
         <p className="mt-2 whitespace-pre-wrap text-sm leading-6">{comment.content}</p>
         <div className="mt-2 flex items-center gap-4">
@@ -82,8 +82,8 @@ function CommentItem({
           {replies.map((r) => (
             <div key={r._id} className="rounded-2xl border border-border bg-card/60 p-3">
               <div className="flex items-center gap-2 text-xs">
-                <span className="font-medium">@{r.authorUsername}</span>
-                <span className="text-muted-foreground">· {timeAgo(r.createdAt)}</span>
+                <span className="truncate font-medium">@{r.authorUsername}</span>
+                <span className="shrink-0 text-muted-foreground">· {timeAgo(r.createdAt)}</span>
               </div>
               <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6">{r.content}</p>
             </div>

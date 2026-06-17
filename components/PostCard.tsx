@@ -62,18 +62,18 @@ export default function PostCard({ post, readOnly = false }: { post: Post; readO
   const activeReactions = Object.entries(reactions).filter(([, n]) => n > 0);
 
   return (
-    <article className="min-w-0 rounded-3xl border border-border bg-card p-5">
+    <article className="min-w-0 rounded-3xl border border-border bg-card p-4 sm:p-5">
       {/* header */}
       <div className="flex items-center gap-3">
-        <Link href={`/u/${post.authorUsername}`} className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm">🕶️</Link>
-        <div className="flex items-center gap-2 text-sm">
+        <Link href={`/u/${post.authorUsername}`} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm">🕶️</Link>
+        <div className="flex min-w-0 items-center gap-2 text-sm">
           <Link
             href={`/u/${post.authorUsername}`}
-            className="font-medium transition-colors hover:text-primary"
+            className="truncate font-medium transition-colors hover:text-primary"
           >
             @{post.authorUsername}
           </Link>
-          <span className="text-muted-foreground">· {timeAgo(post.createdAt)}</span>
+          <span className="shrink-0 text-muted-foreground">· {timeAgo(post.createdAt)}</span>
         </div>
       </div>
 
@@ -95,7 +95,7 @@ export default function PostCard({ post, readOnly = false }: { post: Post; readO
       )}
 
       {/* actions */}
-      <div className="relative mt-4 flex items-center gap-5 text-sm text-muted-foreground">
+      <div className="relative mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground sm:gap-5">
         <button
           onClick={onLike}
           className={`flex items-center gap-1.5 transition-colors hover:text-primary ${liked ? "text-primary" : ""}`}
