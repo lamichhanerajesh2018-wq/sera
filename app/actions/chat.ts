@@ -284,17 +284,27 @@ export async function sendMessage(conversationId: string, content: string) {
   };
 
   // Realtime: broadcast to everyone subscribed to this conversation's channel.
-  await pusherServer.trigger(`conversation-${conversationId}`, "new-message", message);
+  // Best-effort — the message is already saved, so a Pusher hiccup (e.g. a
+  // missing key on a preview deploy) must not fail the send.
+  try {
+    await pusherServer.trigger(`conversation-${conversationId}`, "new-message", message);
+  } catch (err) {
+    console.error("[chat] pusher trigger failed:", err);
+  }
 
-  // Notify the other participant (otherId computed above).
+  // Notify the other participant (otherId computed above). Also best-effort.
   if (otherId) {
-    const isRequest = (convo.status ?? "accepted") === "pending" && convo.requestedBy === me.id;
-    await notify(
-      otherId,
-      "message",
-      isRequest ? "You have a new message request." : "You have a new anonymous message.",
-      `/chat/${conversationId}`
-    );
+    try {
+      const isRequest = (convo.status ?? "accepted") === "pending" && convo.requestedBy === me.id;
+      await notify(
+        otherId,
+        "message",
+        isRequest ? "You have a new message request." : "You have a new anonymous message.",
+        `/chat/${conversationId}`
+      );
+    } catch (err) {
+      console.error("[chat] notify failed:", err);
+    }
   }
 
   revalidatePath("/chat");

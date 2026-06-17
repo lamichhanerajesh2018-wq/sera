@@ -11,6 +11,7 @@ import { getPresence } from "@/lib/presence";
 import AppBar from "@/components/AppBar";
 import Avatar from "@/components/Avatar";
 import PresenceDot from "@/components/PresenceDot";
+import ShareAskLink from "@/components/ShareAskLink";
 import PostCard from "@/components/PostCard";
 import MessageButton from "@/components/MessageButton";
 import BlockButton from "@/components/BlockButton";
@@ -86,7 +87,8 @@ export default async function ProfilePage({
               )}
             </div>
             {profile.isMe ? (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <ShareAskLink handle={profile.username} />
                 <Link
                   href="/settings/avatar"
                   className="rounded-full border border-border px-4 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
