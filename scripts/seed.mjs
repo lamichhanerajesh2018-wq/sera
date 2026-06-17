@@ -1,9 +1,9 @@
 // scripts/seed.mjs
 // One-off seed script: inserts starter communities, anonymous author handles,
-// realistic confession-style posts, comments/replies, and reactions spread
-// across the feed and communities. Safe to run multiple times — it clears prior
-// seed data first (only docs marked with seed: true) so it won't touch real
-// user content.
+// realistic confession-style posts, comments/replies, reactions, anonymous Q&A
+// (some answered + public), and 1-on-1 conversations with messages. Safe to run
+// multiple times — it clears prior seed data first (only docs marked seed: true)
+// so it won't touch real user content.
 //
 // Run with:  node scripts/seed.mjs
 // Needs MONGODB_URI in .env.local.
@@ -26,15 +26,16 @@ if (!MONGODB_URI) {
 
 const client = new MongoClient(MONGODB_URI);
 
-// --- anonymous seed authors (15) ---
+// --- anonymous seed authors (15) — Sera branding ---
 const AUTHORS = [
-  "hush-2847", "hush-5102", "hush-7391", "hush-1664", "hush-9028",
-  "hush-4475", "hush-3310", "hush-8856", "hush-6203", "hush-1129",
-  "hush-7740", "hush-5598", "hush-2061", "hush-9417", "hush-3852",
+  "sera-2847", "sera-5102", "sera-7391", "sera-1664", "sera-9028",
+  "sera-4475", "sera-3310", "sera-8856", "sera-6203", "sera-1129",
+  "sera-7740", "sera-5598", "sera-2061", "sera-9417", "sera-3852",
 ];
 
 const rand = (n) => Math.floor(Math.random() * n);
 const pickAuthor = () => rand(AUTHORS.length);
+const pick = (arr) => arr[rand(arr.length)];
 
 // --- communities (12) ---
 const COMMUNITIES = [
@@ -53,7 +54,6 @@ const COMMUNITIES = [
 ];
 
 // --- posts: [communitySlug | null (general feed), text] ---
-// Author is assigned randomly at insert time.
 const POSTS = [
   // ---- general feed ----
   [null, "I smile at work every day and no one knows I cried in my car before walking in."],
@@ -130,7 +130,7 @@ const POSTS = [
   ["starting-over", "Deleted every old photo today. Not out of anger — just ready to stop living in a chapter that ended."],
 ];
 
-// --- comment templates (assigned to random posts/authors) ---
+// --- comment templates ---
 const COMMENTS = [
   "this hit harder than i expected. you're not alone in it.",
   "i could've written this myself.",
@@ -146,6 +146,32 @@ const COMMENTS = [
   "i felt this one in my chest.",
 ];
 
+// --- anonymous Q&A: [question, answer]. Some get answered + made public. ---
+const QA = [
+  ["what's something you're proud of but never say out loud?", "i rebuilt my whole life after a breakup that gutted me. no one saw the work. i did."],
+  ["if you could tell your past self one thing, what would it be?", "the people who left were making room. i didn't understand that for years."],
+  ["what keeps you going on the hard days?", "honestly? small things. coffee, one good song, knowing tomorrow is a clean page."],
+  ["do you believe people really change?", "yes. slowly, and only when they want to. i'm proof."],
+  ["what's a fear you've never told anyone?", "that i'll wake up at 40 and realize i played it too safe my whole life."],
+  ["what do you wish more people understood about you?", "that 'i'm fine' is sometimes the bravest lie i tell."],
+  ["best advice you've ever gotten?", "you can be a good person and still be someone's lesson in what to walk away from."],
+  ["what does happiness look like for you now?", "quieter than i expected. less applause, more peace."],
+];
+
+// --- DM openers + replies for seeded conversations ---
+const DM_OPENERS = [
+  "hey, your last post really resonated with me. just wanted you to know you're not alone.",
+  "i don't usually message strangers but that confession felt like mine. thank you for writing it.",
+  "your words got me through a rough night. sending good energy your way.",
+  "saw your post in the anxiety group — i've been there. it does get quieter, i promise.",
+];
+const DM_REPLIES = [
+  "this means a lot, honestly. thank you for reaching out.",
+  "wow. i didn't expect anyone to say that. you made my day.",
+  "right back at you. we're all just figuring it out.",
+  "thank you, stranger. i needed this more than you know.",
+];
+
 async function run() {
   await client.connect();
   const db = client.db();
@@ -156,13 +182,21 @@ async function run() {
   const posts = db.collection("posts");
   const comments = db.collection("comments");
   const memberships = db.collection("memberships");
+  const questions = db.collection("questions");
+  const conversations = db.collection("conversations");
+  const messages = db.collection("messages");
 
   // --- clear previous seed data only ---
-  await users.deleteMany({ seed: true });
-  await communities.deleteMany({ seed: true });
-  await posts.deleteMany({ seed: true });
-  await comments.deleteMany({ seed: true });
-  await memberships.deleteMany({ seed: true });
+  await Promise.all([
+    users.deleteMany({ seed: true }),
+    communities.deleteMany({ seed: true }),
+    posts.deleteMany({ seed: true }),
+    comments.deleteMany({ seed: true }),
+    memberships.deleteMany({ seed: true }),
+    questions.deleteMany({ seed: true }),
+    conversations.deleteMany({ seed: true }),
+    messages.deleteMany({ seed: true }),
+  ]);
   console.log("🧹 Cleared previous seed data");
 
   const now = Date.now();
@@ -179,7 +213,7 @@ async function run() {
       name: username,
       username,
       displayUsername: username,
-      email: `${username}@seed.hush`,
+      email: `${username}@seed.sera`,
       emailVerified: false,
       seed: true,
       createdAt: new Date(now - (i + 1) * 86400000),
@@ -219,7 +253,6 @@ async function run() {
     const id = new ObjectId();
     postIds.push(id);
 
-    // random emoji reactions on some posts
     const reactions = {};
     if (Math.random() > 0.4) {
       const n = 1 + rand(3);
@@ -248,7 +281,7 @@ async function run() {
   // --- comments (spread across ~60% of posts) ---
   let commentCount = 0;
   for (let i = 0; i < postIds.length; i++) {
-    if (Math.random() > 0.6) continue; // ~60% of posts get comments
+    if (Math.random() > 0.6) continue;
     const howMany = 1 + rand(3);
     for (let c = 0; c < howMany; c++) {
       const ai = pickAuthor();
@@ -266,6 +299,95 @@ async function run() {
     await posts.updateOne({ _id: postIds[i] }, { $set: { commentCount: howMany } });
   }
   console.log(`💬 Inserted ${commentCount} comments`);
+
+  // --- anonymous Q&A (answered + public, so profile walls have content) ---
+  let qaCount = 0;
+  for (let i = 0; i < QA.length; i++) {
+    const [q, a] = QA[i];
+    // recipient is a rotating author; sender stays anonymous (recorded, never shown)
+    const recipientIdx = i % AUTHORS.length;
+    const senderIdx = (i + 5) % AUTHORS.length;
+    const answered = Math.random() > 0.25; // ~75% answered
+
+    const reactions = {};
+    if (answered && Math.random() > 0.5) {
+      const e = pick(["❤️", "👀", "😂", "🙏"]);
+      reactions[e] = 1 + rand(4);
+    }
+
+    await questions.insertOne({
+      recipientId: authorIds[recipientIdx].toString(),
+      recipientUsername: AUTHORS[recipientIdx],
+      senderId: authorIds[senderIdx].toString(),
+      content: q,
+      answer: answered ? a : null,
+      answeredAt: answered ? new Date(now - rand(40) * 3600000) : null,
+      isPublic: answered, // answered ones show on the public profile wall
+      reactions,
+      seed: true,
+      createdAt: new Date(now - (QA.length - i) * 7200000),
+    });
+    qaCount++;
+  }
+  console.log(`❓ Inserted ${qaCount} Q&A questions`);
+
+  // --- conversations + messages (so the Conversations stat is real) ---
+  // Pair up authors into a handful of threads, each with a short exchange.
+  const PAIRS = [
+    [0, 3], [1, 7], [2, 9], [4, 11], [5, 13], [6, 8], [10, 14], [12, 1],
+  ];
+  let convoCount = 0;
+  let msgCount = 0;
+  for (let i = 0; i < PAIRS.length; i++) {
+    const [a, b] = PAIRS[i];
+    const idA = authorIds[a].toString();
+    const idB = authorIds[b].toString();
+    const pair = [idA, idB].sort();
+    const usernames =
+      pair[0] === idA ? [AUTHORS[a], AUTHORS[b]] : [AUTHORS[b], AUTHORS[a]];
+
+    const convoId = new ObjectId();
+    const base = now - (PAIRS.length - i) * 5400000;
+
+    // a opens, b replies, a closes — accepted thread
+    const exchange = [
+      { sender: a, text: pick(DM_OPENERS) },
+      { sender: b, text: pick(DM_REPLIES) },
+      { sender: a, text: pick(["that genuinely helped. take care of yourself.", "anytime. we look out for each other here.", "glad i reached out. talk soon?"]) },
+    ];
+
+    let last = "";
+    let lastAt = base;
+    for (let m = 0; m < exchange.length; m++) {
+      const senderIdx = exchange[m].sender;
+      const at = new Date(base + m * 600000);
+      await messages.insertOne({
+        conversationId: convoId.toString(),
+        senderId: authorIds[senderIdx].toString(),
+        senderUsername: AUTHORS[senderIdx],
+        content: exchange[m].text,
+        seed: true,
+        createdAt: at,
+      });
+      last = exchange[m].text;
+      lastAt = at;
+      msgCount++;
+    }
+
+    await conversations.insertOne({
+      _id: convoId,
+      participantIds: pair,
+      participantUsernames: usernames,
+      lastMessage: last,
+      lastMessageAt: lastAt,
+      status: "accepted",
+      requestedBy: idA,
+      seed: true,
+      createdAt: new Date(base),
+    });
+    convoCount++;
+  }
+  console.log(`💌 Inserted ${convoCount} conversations with ${msgCount} messages`);
 
   console.log("✅ Done seeding.");
   await client.close();
