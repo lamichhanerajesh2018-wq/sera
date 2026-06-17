@@ -18,9 +18,10 @@ interface SendArgs {
   to: string;
   subject: string;
   html: string;
+  replyTo?: string;
 }
 
-export async function sendEmail({ to, subject, html }: SendArgs): Promise<void> {
+export async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promise<void> {
   const resend = getResend();
   if (!resend) {
     // No key configured — log and no-op so dev without email still works.
@@ -28,7 +29,13 @@ export async function sendEmail({ to, subject, html }: SendArgs): Promise<void> 
     return;
   }
   try {
-    const { error } = await resend.emails.send({ from, to, subject, html });
+    const { error } = await resend.emails.send({
+      from,
+      to,
+      subject,
+      html,
+      ...(replyTo ? { replyTo } : {}),
+    });
     if (error) {
       // Log but don't throw — a failed email must never break signup. With the
       // free onboarding@resend.dev sender, delivery only works to your own
