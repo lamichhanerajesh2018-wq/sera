@@ -1,14 +1,99 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import HeroWhisper from "@/components/HeroWhisper";
 import Reveal from "@/components/Reveal";
 import Logo from "@/components/Logo";
 import InstallButton from "@/components/InstallButton";
 
-<meta name="google-site-verification" content="CisPtmyEZv29m8qySPyEyYRjDnulSwtc88xjpgJGCcA" />
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://sera.social";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: "Sera — Anonymous Social Network | Speak Freely, Stay Unseen",
+  description:
+    "Sera is an anonymous social network to share confessions, receive anonymous messages, join communities and chat — without ever revealing your identity. No real names, no phone numbers, AI moderated.",
+  keywords: [
+    "anonymous social network",
+    "anonymous confessions",
+    "anonymous messages",
+    "anonymous chat",
+    "send anonymous message",
+    "anonymous communities",
+    "speak freely",
+    "Sera",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: "Sera",
+    title: "Sera — Anonymous Social Network | Speak Freely, Stay Unseen",
+    description:
+      "Share confessions, receive anonymous messages, join communities and chat freely — without ever revealing who you are. No real names. No phone numbers. AI moderated.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Sera — Speak freely. Stay unseen.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sera — Anonymous Social Network",
+    description:
+      "Speak freely. Stay unseen. Share confessions, receive anonymous messages and join communities — without revealing your identity.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 export default function Home() {
+  // JSON-LD structured data for SEO (Organization + WebSite + FAQ).
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: "Sera",
+        url: SITE_URL,
+        description:
+          "An anonymous social network to share confessions, receive anonymous messages, join communities and chat — without revealing your identity.",
+        logo: `${SITE_URL}/icon-192.png`,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: "Sera",
+        description: "Speak freely. Stay unseen.",
+        publisher: { "@id": `${SITE_URL}/#organization` },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: FAQS.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+  };
+
   return (
     <div className="flex flex-1 flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ---------- NAV ---------- */}
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/60 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
