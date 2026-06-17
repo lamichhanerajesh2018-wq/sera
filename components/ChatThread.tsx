@@ -13,10 +13,12 @@ export default function ChatThread({
   conversationId,
   myUserId,
   initialMessages,
+  locked = false,
 }: {
   conversationId: string;
   myUserId: string;
   initialMessages: Message[];
+  locked?: boolean;
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [draft, setDraft] = useState("");
@@ -49,7 +51,7 @@ export default function ChatThread({
 
   async function send() {
     const text = draft.trim();
-    if (!text || sending) return;
+    if (!text || sending || locked) return;
 
     setSending(true);
     setError(null);
@@ -121,13 +123,14 @@ export default function ChatThread({
                 send();
               }
             }}
-            placeholder="Type a message…"
+            disabled={locked}
+            placeholder={locked ? "Waiting for them to accept your request…" : "Type a message…"}
             rows={1}
-            className="max-h-32 min-h-[44px] flex-1 resize-none rounded-2xl border border-border bg-card px-4 py-2.5 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary/50"
+            className="max-h-32 min-h-[44px] flex-1 resize-none rounded-2xl border border-border bg-card px-4 py-2.5 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary/50 disabled:opacity-50"
           />
           <button
             onClick={send}
-            disabled={sending || !draft.trim()}
+            disabled={sending || locked || !draft.trim()}
             className="h-11 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             Send

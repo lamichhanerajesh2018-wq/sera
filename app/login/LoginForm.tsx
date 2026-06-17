@@ -81,7 +81,14 @@ export default function LoginForm() {
           Lost your password or recovery code?
         </summary>
         <p className="mt-3 leading-6 text-muted-foreground">
-          Sera accounts have no email, so there&apos;s no reset link. Your{" "}
+          If you signed up with an email, you can{" "}
+          <Link href="/forgot-password" className="text-primary underline-offset-4 hover:underline">
+            email yourself a reset link
+          </Link>
+          .
+        </p>
+        <p className="mt-2 leading-6 text-muted-foreground">
+          Signed up anonymously with no email? Your{" "}
           <span className="text-foreground">recovery code</span> (shown once when you joined)
           works in place of your password — enter it above with your handle to get back in.
         </p>

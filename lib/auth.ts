@@ -5,7 +5,7 @@ import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { username } from "better-auth/plugins";
 import { db, client } from "@/lib/mongodb";
-import { sendEmail, verificationEmailHtml } from "@/lib/email";
+import { sendEmail, verificationEmailHtml, resetPasswordEmailHtml } from "@/lib/email";
 
 export const auth = betterAuth({
   database: mongodbAdapter(db, { client }),
@@ -19,6 +19,20 @@ export const auth = betterAuth({
     // verification email only matters for later recovery, so we let people in
     // and nudge them to confirm. (Pure-anonymous accounts have no email at all.)
     requireEmailVerification: false,
+    // Forgot-password: email a reset link to users who signed up with a real
+    // email. Pure-anonymous accounts (placeholder @anon.sera.local) have no
+    // inbox, so there's nothing to send — they recover via their recovery code.
+    async sendResetPassword({ user, url }) {
+      if (!user.email || user.email.endsWith("@anon.sera.local")) return;
+      // Fire-and-forget so a slow provider never hangs the request.
+      sendEmail({
+        to: user.email,
+        subject: "Reset your Sera password",
+        html: resetPasswordEmailHtml(url),
+      }).catch((err) => {
+        console.error("[auth] reset email failed:", err);
+      });
+    },
   },
 
   // When a user signs up with an email (the "recoverable" path), send them a

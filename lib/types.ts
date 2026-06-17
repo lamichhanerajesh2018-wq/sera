@@ -64,8 +64,15 @@ export interface Conversation {
   lastMessage: string;
   lastMessageAt: string;
   createdAt: string;
+  // "pending" until the recipient accepts (or replies, which auto-accepts).
+  // "accepted" conversations behave like normal open chats.
+  status: "pending" | "accepted";
+  // Which user started the request (sender). null on legacy/accepted threads.
+  requestedBy: string | null;
   // Populated per-request for the viewer:
   otherUsername?: string;
+  // True when this is an incoming request awaiting the viewer's decision.
+  isIncomingRequest?: boolean;
 }
 
 export interface Message {

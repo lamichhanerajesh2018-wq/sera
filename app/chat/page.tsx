@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { listConversations } from "@/app/actions/chat";
+import { listConversations, listMessageRequests } from "@/app/actions/chat";
 import AppBar from "@/components/AppBar";
+import Avatar from "@/components/Avatar";
+import MessageRequestActions from "@/components/MessageRequestActions";
 import StartChat from "@/components/StartChat";
 
 export const metadata = { title: "Chats — Sera" };
@@ -24,7 +26,10 @@ export default async function ChatListPage() {
   if (!me) redirect("/login");
 
   const handle = (me as any).username || (me as any).displayUsername || "anon";
-  const conversations = await listConversations();
+  const [conversations, requests] = await Promise.all([
+    listConversations(),
+    listMessageRequests(),
+  ]);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -34,6 +39,35 @@ export default async function ChatListPage() {
         <h1 className="mb-4 font-display text-2xl font-medium">Chats</h1>
 
         <StartChat />
+
+        {/* Incoming message requests */}
+        {requests.length > 0 && (
+          <section className="mt-6">
+            <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold">
+              Message requests
+              <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">
+                {requests.length}
+              </span>
+            </h2>
+            <div className="space-y-2">
+              {requests.map((c) => (
+                <div
+                  key={c._id}
+                  className="flex items-center gap-3 rounded-2xl border border-primary/25 bg-card p-4"
+                >
+                  <Avatar seed={c.otherUsername || "sera"} size={44} />
+                  <Link href={`/chat/${c._id}`} className="min-w-0 flex-1">
+                    <span className="font-medium">@{c.otherUsername}</span>
+                    <p className="truncate text-sm text-muted-foreground">
+                      {c.lastMessage || "wants to message you"}
+                    </p>
+                  </Link>
+                  <MessageRequestActions conversationId={c._id} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="mt-6 space-y-2">
           {conversations.length === 0 ? (
@@ -50,10 +84,17 @@ export default async function ChatListPage() {
                 href={`/chat/${c._id}`}
                 className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-lg">🕶️</span>
+                <Avatar seed={c.otherUsername || "sera"} size={44} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">@{c.otherUsername}</span>
+                    <span className="font-medium">
+                      @{c.otherUsername}
+                      {c.status === "pending" && c.requestedBy && (
+                        <span className="ml-2 rounded-full border border-border px-2 py-0.5 text-[10px] font-normal text-muted-foreground">
+                          Requested
+                        </span>
+                      )}
+                    </span>
                     <span className="text-xs text-muted-foreground">{timeAgo(c.lastMessageAt)}</span>
                   </div>
                   <p className="truncate text-sm text-muted-foreground">

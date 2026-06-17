@@ -21,6 +21,11 @@ function toConversation(doc: any, viewerId: string): Conversation {
     lastMessageAt: (doc.lastMessageAt instanceof Date ? doc.lastMessageAt : new Date(doc.lastMessageAt)).toISOString(),
     createdAt: (doc.createdAt instanceof Date ? doc.createdAt : new Date(doc.createdAt)).toISOString(),
     otherUsername: doc.participantUsernames[otherIdx],
+    status: doc.status ?? "accepted",
+    requestedBy: doc.requestedBy ?? null,
+    // True when the conversation is pending AND the viewer is the recipient
+    // (i.e. it's an incoming request awaiting their accept/decline).
+    isIncomingRequest: (doc.status ?? "accepted") === "pending" && doc.requestedBy !== viewerId,
   };
 }
 
@@ -78,24 +83,98 @@ export async function startConversation(otherUsername: string) {
     lastMessage: "",
     lastMessageAt: now,
     createdAt: now,
+    // New conversations start as a request from the initiator. The recipient
+    // accepts explicitly, or it auto-accepts when they reply.
+    status: "pending",
+    requestedBy: me.id,
   });
 
   return { ok: true, conversationId: result.insertedId.toString() };
 }
 
-// All conversations the current user is part of, most recent first.
+// All ACCEPTED conversations the current user is part of, most recent first.
+// Pending requests are surfaced separately via listMessageRequests().
 export async function listConversations(): Promise<Conversation[]> {
   const me = await getCurrentUser();
   if (!me) return [];
 
   const docs = await db
     .collection("conversations")
-    .find({ participantIds: me.id })
+    .find({
+      participantIds: me.id,
+      // Show accepted threads, plus pending ones I started (so the sender can
+      // see their own outgoing request and its replies).
+      $or: [{ status: "accepted" }, { status: { $exists: false } }, { requestedBy: me.id }],
+    })
     .sort({ lastMessageAt: -1 })
     .limit(100)
     .toArray();
 
   return docs.map((d) => toConversation(d, me.id));
+}
+
+// Incoming message requests: pending conversations where someone messaged ME
+// and I haven't accepted/replied yet. Newest first.
+export async function listMessageRequests(): Promise<Conversation[]> {
+  const me = await getCurrentUser();
+  if (!me) return [];
+
+  const docs = await db
+    .collection("conversations")
+    .find({
+      participantIds: me.id,
+      status: "pending",
+      requestedBy: { $ne: me.id },
+    })
+    .sort({ lastMessageAt: -1 })
+    .limit(100)
+    .toArray();
+
+  return docs.map((d) => toConversation(d, me.id));
+}
+
+// Accept an incoming request: flip it to accepted so both sides can chat freely.
+export async function acceptConversation(conversationId: string) {
+  const me = await getCurrentUser();
+  if (!me) return { error: "You must be signed in." };
+  if (!ObjectId.isValid(conversationId)) return { error: "Invalid conversation." };
+
+  const convo = await db.collection("conversations").findOne({
+    _id: new ObjectId(conversationId),
+    participantIds: me.id,
+  });
+  if (!convo) return { error: "Conversation not found." };
+  // Only the recipient (not the requester) may accept.
+  if (convo.requestedBy === me.id) return { error: "You can't accept your own request." };
+
+  await db.collection("conversations").updateOne(
+    { _id: new ObjectId(conversationId) },
+    { $set: { status: "accepted" } }
+  );
+
+  revalidatePath("/chat");
+  revalidatePath(`/chat/${conversationId}`);
+  return { ok: true };
+}
+
+// Decline an incoming request: delete the conversation and its messages.
+export async function declineConversation(conversationId: string) {
+  const me = await getCurrentUser();
+  if (!me) return { error: "You must be signed in." };
+  if (!ObjectId.isValid(conversationId)) return { error: "Invalid conversation." };
+
+  const convo = await db.collection("conversations").findOne({
+    _id: new ObjectId(conversationId),
+    participantIds: me.id,
+  });
+  if (!convo) return { error: "Conversation not found." };
+  if (convo.requestedBy === me.id) return { error: "You can't decline your own request." };
+
+  await db.collection("messages").deleteMany({ conversationId });
+  await db.collection("conversations").deleteOne({ _id: new ObjectId(conversationId) });
+
+  revalidatePath("/chat");
+  return { ok: true };
 }
 
 // Verify the viewer belongs to a conversation, and return it.
@@ -154,6 +233,31 @@ export async function sendMessage(conversationId: string, content: string) {
     return { error: "You can no longer message this person." };
   }
 
+  // ---- message-request gating ------------------------------------------
+  const status = convo.status ?? "accepted";
+  if (status === "pending") {
+    const iAmRequester = convo.requestedBy === me.id;
+    if (iAmRequester) {
+      // Sender may send up to 3 messages before the recipient accepts, to
+      // prevent using a request as a spam channel.
+      const REQUEST_LIMIT = 3;
+      const sentSoFar = await db
+        .collection("messages")
+        .countDocuments({ conversationId, senderId: me.id });
+      if (sentSoFar >= REQUEST_LIMIT) {
+        return {
+          error: "You've reached the message-request limit. Wait for them to accept before sending more.",
+        };
+      }
+    } else {
+      // The recipient is replying — that acceptance opens the conversation.
+      await db.collection("conversations").updateOne(
+        { _id: new ObjectId(conversationId) },
+        { $set: { status: "accepted" } }
+      );
+    }
+  }
+
   const myUsername = (me as any).username || (me as any).displayUsername || "anon";
   const now = new Date();
 
@@ -184,7 +288,13 @@ export async function sendMessage(conversationId: string, content: string) {
 
   // Notify the other participant (otherId computed above).
   if (otherId) {
-    await notify(otherId, "message", "You have a new anonymous message.", `/chat/${conversationId}`);
+    const isRequest = (convo.status ?? "accepted") === "pending" && convo.requestedBy === me.id;
+    await notify(
+      otherId,
+      "message",
+      isRequest ? "You have a new message request." : "You have a new anonymous message.",
+      `/chat/${conversationId}`
+    );
   }
 
   revalidatePath("/chat");

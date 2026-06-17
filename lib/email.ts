@@ -77,3 +77,22 @@ export function verificationEmailHtml(url: string): string {
     </p>
   `);
 }
+
+export function resetPasswordEmailHtml(url: string): string {
+  return WRAP(`
+    <h1 style="font-size:18px;color:#f5e9da;margin:0 0 12px;">Reset your password</h1>
+    <p style="font-size:14px;line-height:22px;color:#c8bcae;margin:0 0 24px;">
+      We got a request to reset the password for your Sera account. Click below to
+      choose a new one. This link expires soon, and your handle stays the same.
+    </p>
+    <a href="${url}" style="display:inline-block;background:#e0a458;color:#1a1614;text-decoration:none;font-weight:600;font-size:14px;padding:12px 24px;border-radius:999px;">
+      Reset password
+    </a>
+    <p style="font-size:12px;color:#8a7d70;margin:20px 0 0;">
+      Or paste this link: <br/>${url}
+    </p>
+    <p style="font-size:12px;color:#8a7d70;margin:16px 0 0;">
+      Didn't ask for this? You can safely ignore this email — your password won't change.
+    </p>
+  `);
+}
