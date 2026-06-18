@@ -24,14 +24,16 @@ export const auth = betterAuth({
     // inbox, so there's nothing to send — they recover via their recovery code.
     async sendResetPassword({ user, url }) {
       if (!user.email || user.email.endsWith("@anon.sera.local")) return;
-      // Fire-and-forget so a slow provider never hangs the request.
-      sendEmail({
-        to: user.email,
-        subject: "Reset your Sera password",
-        html: resetPasswordEmailHtml(url),
-      }).catch((err) => {
+      console.log("[auth] sendResetPassword called for:", user.email);
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: "Reset your Sera password",
+          html: resetPasswordEmailHtml(url),
+        });
+      } catch (err) {
         console.error("[auth] reset email failed:", err);
-      });
+      }
     },
   },
 
@@ -42,18 +44,19 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     async sendVerificationEmail({ user, url }) {
+      console.log("[auth] sendVerificationEmail called for:", user.email, "url:", url);
       // Skip placeholder emails used by pure-anonymous accounts.
       if (!user.email || user.email.endsWith("@anon.sera.local")) return;
-      // Fire-and-forget: never let a slow or failing email provider block or
-      // hang the signup. The account is already created; the email is a
-      // best-effort convenience for later recovery.
-      sendEmail({
-        to: user.email,
-        subject: "Verify your email for Sera",
-        html: verificationEmailHtml(url),
-      }).catch((err) => {
+      try {
+        await sendEmail({
+          to: user.email,
+          subject: "Verify your email for Sera",
+          html: verificationEmailHtml(url),
+        });
+        console.log("[auth] verification email dispatched to:", user.email);
+      } catch (err) {
         console.error("[auth] verification email failed:", err);
-      });
+      }
     },
   },
 

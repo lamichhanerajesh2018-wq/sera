@@ -25,12 +25,40 @@ function timeAgo(iso: string): string {
   return `${d}d`;
 }
 
+// Detect preferred language from browser
+function getUserLang(): string {
+  if (typeof navigator === "undefined") return "en";
+  const code = (navigator.language || "en").split("-")[0].toLowerCase();
+  return ["ne","hi","es","fr","de","ja","ko","zh","ar","pt"].includes(code) ? code : "en";
+}
+
 export default function PostCard({ post, readOnly = false }: { post: Post; readOnly?: boolean }) {
   const router = useRouter();
   const [liked, setLiked] = useState(!!post.likedByMe);
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [reactions, setReactions] = useState<Record<string, number>>(post.reactions || {});
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [translated, setTranslated] = useState<string | null>(null);
+  const [showOriginal, setShowOriginal] = useState(false);
+
+  async function onTranslate() {
+    // Toggle back to original if already translated
+    if (translated) { setShowOriginal((v) => !v); return; }
+    setTranslating(true);
+    try {
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: post.content, targetLang: getUserLang() }),
+      });
+      const data = await res.json();
+      if (data.translated) setTranslated(data.translated);
+    } catch { /* silently ignore */ }
+    finally { setTranslating(false); }
+  }
+
+  const displayContent = translated && !showOriginal ? translated : post.content;
 
   // Guests can read, but any interaction sends them to sign up.
   function gate(): boolean {
@@ -81,7 +109,17 @@ export default function PostCard({ post, readOnly = false }: { post: Post; readO
       </div>
 
       {/* content */}
-      <p className="mt-3 whitespace-pre-wrap break-words text-[15px] leading-7">{post.content}</p>
+      <p className="mt-3 whitespace-pre-wrap break-words text-[15px] leading-7">{displayContent}</p>
+      {translated && (
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          {showOriginal ? "Showing original" : "Translated · "}
+          {!showOriginal && (
+            <button onClick={() => setShowOriginal(true)} className="underline underline-offset-2 hover:text-foreground">
+              Show original
+            </button>
+          )}
+        </p>
+      )}
 
       {/* active reactions row */}
       {activeReactions.length > 0 && (
@@ -133,6 +171,16 @@ export default function PostCard({ post, readOnly = false }: { post: Post; readO
           authorUsername={post.authorUsername}
           content={post.content}
         />
+
+        <button
+          onClick={onTranslate}
+          disabled={translating}
+          className="flex items-center gap-1.5 transition-colors hover:text-primary disabled:opacity-50"
+          title="Translate"
+        >
+          <span>🌐</span>
+          {translating ? "…" : translated && !showOriginal ? "Original" : "Translate"}
+        </button>
 
         {!readOnly && (
           <div className="ml-auto">

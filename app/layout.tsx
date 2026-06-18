@@ -1,24 +1,25 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Inter, Fraunces } from "next/font/google";
+import { Plus_Jakarta_Sans, Sora } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import PostHogProvider from "@/components/PostHogProvider";
 
-// Body: Inter — clean, highly readable for a content-heavy social feed.
-const inter = Inter({
+// Body: Plus Jakarta Sans — modern, friendly, highly readable.
+const inter = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
-// Display: Fraunces — a characterful high-contrast serif. Gives Sera a literary,
-// "anonymous letter / confession" feel instead of a generic techy sans.
-const fraunces = Fraunces({
+// Display: Sora — clean geometric sans for headings. Modern and professional.
+const fraunces = Sora({
   variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "600", "900"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -41,28 +42,33 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#161210",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="en"
-      className={`dark ${inter.variable} ${fraunces.variable} h-full antialiased`}
+      lang={locale}
+      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <Suspense fallback={null}>
-          <PostHogProvider>{children}</PostHogProvider>
-        </Suspense>
-        <ServiceWorkerRegistrar />
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <Suspense fallback={null}>
+            <PostHogProvider>{children}</PostHogProvider>
+          </Suspense>
+          <ServiceWorkerRegistrar />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

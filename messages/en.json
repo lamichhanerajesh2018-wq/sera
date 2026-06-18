@@ -1,0 +1,40 @@
+{
+  "nav": {
+    "features": "Features",
+    "confessions": "Confessions",
+    "communities": "Communities",
+    "safety": "Safety",
+    "faq": "FAQ",
+    "signIn": "Sign in",
+    "getStarted": "Get started free"
+  },
+  "hero": {
+    "badge": "🔒 AI Moderated • Anonymous by Design",
+    "headline": "Get honest, anonymous messages from anyone",
+    "subheadline": "Share your Sera link in your bio or story. Friends, followers, anyone can message you anonymously — no login, no trace. Plus confessions, communities and private chat.",
+    "noRealNames": "No real names.",
+    "noPhoneNumbers": "No phone numbers.",
+    "noFollowers": "No followers.",
+    "cta": "Get your anonymous link",
+    "explore": "Explore confessions",
+    "free": "Free · takes 10 seconds · no phone number"
+  },
+  "feed": {
+    "translate": "Translate",
+    "original": "Original",
+    "translating": "Translating…",
+    "showOriginal": "Show original",
+    "showingOriginal": "Showing original",
+    "translated": "Translated"
+  },
+  "common": {
+    "signUp": "Sign up",
+    "signIn": "Sign in",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "send": "Send",
+    "reply": "Reply"
+  }
+}

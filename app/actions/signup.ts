@@ -5,6 +5,7 @@ import { randomBytes } from "crypto";
 import { generateUniqueUsername } from "@/lib/username";
 import { logSafetyEvent } from "@/lib/safety-log";
 import { db } from "@/lib/mongodb";
+import { sendWelcomeMessage } from "@/lib/bot";
 
 // Step 1 (before signup): hand the client a fresh, unique anonymous handle.
 export async function reserveUsername(): Promise<string> {
@@ -19,6 +20,9 @@ export async function logSignup(username: string, ref?: string) {
   if (!user) return;
 
   await logSafetyEvent(user._id.toString(), "signup");
+
+  // Send AI welcome message (best-effort, non-blocking)
+  sendWelcomeMessage(username).catch(() => {});
 
   // Referral linking is best-effort — never block or fail signup over it.
   try {

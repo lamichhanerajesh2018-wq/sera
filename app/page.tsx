@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import type { Metadata } from "next";
 import HeroWhisper from "@/components/HeroWhisper";
 import Reveal from "@/components/Reveal";
@@ -6,6 +9,7 @@ import Logo from "@/components/Logo";
 import InstallButton from "@/components/InstallButton";
 import { getPublicStats } from "@/app/actions/public-stats";
 import { formatStat } from "@/lib/format";
+import { getCurrentUser } from "@/lib/session";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://sera.social";
@@ -58,6 +62,12 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
+  // Redirect logged-in users straight to the feed
+  const user = await getCurrentUser();
+  if (user) redirect("/feed");
+
+  const t = await getTranslations();
+
   // Real, live counts for the stats bar — never invented figures.
   const stats = await getPublicStats();
   const STATS = [
@@ -112,13 +122,14 @@ export default async function Home() {
             <Logo href={null} size="md" />
           </Link>
           <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
-            <a href="#features" className="transition-colors hover:text-foreground">Features</a>
-            <a href="#confessions" className="transition-colors hover:text-foreground">Confessions</a>
+            <a href="#features" className="transition-colors hover:text-foreground">{t("nav.features")}</a>
+            <Link href="/feed" className="transition-colors hover:text-foreground">{t("nav.confessions")}</Link>
             <a href="#communities" className="transition-colors hover:text-foreground">Communities</a>
             <a href="#safety" className="transition-colors hover:text-foreground">Safety</a>
             <a href="#faq" className="transition-colors hover:text-foreground">FAQ</a>
           </nav>
           <div className="flex items-center gap-2 text-sm">
+            <LanguageSwitcher />
             <InstallButton className="hidden rounded-full border border-border px-4 py-2 text-muted-foreground transition-colors hover:text-foreground sm:inline-flex" />
             <Link
               href="/login"
@@ -144,31 +155,29 @@ export default async function Home() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
             </span>
-            🔒 AI Moderated • Anonymous by Design
+            {t("hero.badge")}
           </p>
         </Reveal>
 
         <Reveal delay={60}>
           <h1 className="mx-auto max-w-3xl font-display text-4xl font-medium leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
-            Get honest, anonymous messages from anyone
+            {t("hero.headline")}
           </h1>
         </Reveal>
 
         <Reveal delay={120}>
           <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
-            Share your Sera link in your bio or story. Friends, followers, anyone can
-            message you anonymously — no login, no trace. Plus confessions, communities
-            and private chat.
+            {t("hero.subheadline")}
           </p>
         </Reveal>
 
         <Reveal delay={150}>
           <p className="mx-auto mt-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-medium text-foreground/80">
-            <span>No real names.</span>
+            <span>{t("hero.noRealNames")}</span>
             <span className="text-primary/40">·</span>
-            <span>No phone numbers.</span>
+            <span>{t("hero.noPhoneNumbers")}</span>
             <span className="text-primary/40">·</span>
-            <span>No followers.</span>
+            <span>{t("hero.noFollowers")}</span>
           </p>
         </Reveal>
 
@@ -178,21 +187,21 @@ export default async function Home() {
               href="/signup"
               className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 font-medium text-primary-foreground transition-transform hover:scale-[1.02]"
             >
-              Get your anonymous link
+              {t("hero.cta")}
               <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
             <Link
               href="/feed"
               className="inline-flex h-12 items-center justify-center rounded-full border border-border px-7 text-foreground transition-colors hover:bg-card"
             >
-              Explore confessions
+              {t("hero.explore")}
             </Link>
           </div>
         </Reveal>
 
         <Reveal delay={210}>
           <p className="mt-4 text-sm text-muted-foreground">
-            Free · takes 10 seconds · no phone number
+            {t("hero.free")}
           </p>
         </Reveal>
 

@@ -23,13 +23,13 @@ interface SendArgs {
 
 export async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promise<void> {
   const resend = getResend();
+  console.log("[email] sendEmail called →", { to, subject, hasKey: !!apiKey, from });
   if (!resend) {
-    // No key configured — log and no-op so dev without email still works.
     console.warn("[email] RESEND_API_KEY not set; skipping send to", to);
     return;
   }
   try {
-    const { error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from,
       to,
       subject,
@@ -37,10 +37,9 @@ export async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promi
       ...(replyTo ? { replyTo } : {}),
     });
     if (error) {
-      // Log but don't throw — a failed email must never break signup. With the
-      // free onboarding@resend.dev sender, delivery only works to your own
-      // verified address; other recipients fail here and are logged.
-      console.error("[email] Resend send failed:", error.message);
+      console.error("[email] Resend send failed:", error);
+    } else {
+      console.log("[email] Resend sent OK, id:", data?.id);
     }
   } catch (err) {
     console.error("[email] Resend threw:", err);
