@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SEO_PAGES } from "@/lib/seo-pages";
 
 // Public base URL. Set NEXT_PUBLIC_SITE_URL in production (e.g. https://sera.app).
 // Falls back to localhost for local dev.
@@ -26,7 +27,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
   ];
 
-  return routes.map((r) => ({
+  // Programmatic SEO landing pages (lib/seo-pages.ts).
+  const seoRoutes = SEO_PAGES.map((p) => ({
+    path: `/${p.slug}`,
+    changeFrequency: "weekly" as const,
+    priority: 0.9,
+  }));
+
+  return [...routes, ...seoRoutes].map((r) => ({
     url: `${BASE_URL}${r.path}`,
     lastModified: now,
     changeFrequency: r.changeFrequency,
