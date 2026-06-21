@@ -40,7 +40,7 @@ export async function submitReview(
 
   // AI moderation
   const mod = await moderateText(content);
-  if (!mod.ok) return { error: mod.reason ?? "Your review was flagged by our safety system." };
+  if (!mod.allowed) return { error: mod.reason ?? "Your review was flagged by our safety system." };
 
   await coll.insertOne({
     content,
