@@ -10,6 +10,8 @@ import InstallButton from "@/components/InstallButton";
 import { getPublicStats } from "@/app/actions/public-stats";
 import { formatStat } from "@/lib/format";
 import { getCurrentUser } from "@/lib/session";
+import ReviewsSection from "@/components/ReviewsSection";
+import { getReviews } from "@/app/actions/reviews";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://sera.social";
@@ -70,6 +72,7 @@ export default async function Home() {
 
   // Real, live counts for the stats bar — never invented figures.
   const stats = await getPublicStats();
+  const reviews = await getReviews();
   const STATS = [
     { value: `${formatStat(stats.posts)}`, label: "Anonymous posts" },
     { value: `${formatStat(stats.conversations)}`, label: "Conversations" },
@@ -651,6 +654,9 @@ export default async function Home() {
       {/* ---------- TESTIMONIALS (hidden until we have real beta users) ----------
           Intentionally removed for launch — fake testimonials hurt trust on a
           platform built around honesty. Re-add with real quotes post-beta. */}
+
+      {/* ---------- REVIEWS ---------- */}
+      <ReviewsSection reviews={reviews} isLoggedIn={!!user} />
 
       {/* ---------- FAQ ---------- */}
       <section id="faq" className="mx-auto w-full max-w-3xl scroll-mt-20 px-6 py-20">
