@@ -7,6 +7,27 @@
 // Returns: { translated: string }
 
 import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/mongodb";
+import { currentIpHash } from "@/lib/safety-log";
+
+const TRANSLATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_TRANSLATE_PER_IP = 15;
+
+async function checkTranslateRateLimit(): Promise<{ ok: boolean; reason?: string }> {
+  try {
+    const ipHash = await currentIpHash();
+    const since = new Date(Date.now() - TRANSLATE_WINDOW_MS);
+    const coll = db.collection("translate_rate");
+    const count = await coll.countDocuments({ ipHash, createdAt: { $gte: since } });
+    if (count >= MAX_TRANSLATE_PER_IP) {
+      return { ok: false, reason: "Too many translation requests. Please slow down." };
+    }
+    await coll.insertOne({ ipHash, createdAt: new Date() });
+    return { ok: true };
+  } catch {
+    return { ok: true }; // fail open on infra error
+  }
+}
 
 const LANG_NAMES: Record<string, string> = {
   en: "English",
@@ -26,6 +47,12 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "Translation not configured." }, { status: 503 });
+  }
+
+  // Rate limit by hashed IP — prevents OpenAI cost abuse
+  const rl = await checkTranslateRateLimit();
+  if (!rl.ok) {
+    return NextResponse.json({ error: rl.reason }, { status: 429 });
   }
 
   const body = await req.json().catch(() => ({}));

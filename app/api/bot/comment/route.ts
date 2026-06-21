@@ -13,13 +13,11 @@ export const runtime = "nodejs";
 export const maxDuration = 60; // allow time for multiple GPT calls
 
 export async function POST(req: NextRequest) {
-  // Secure with a shared secret so random people can't trigger it
+  // Deny if BOT_SECRET is not configured or the header doesn't match.
   const secret = process.env.BOT_SECRET;
-  if (secret) {
-    const auth = req.headers.get("authorization") ?? "";
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const auth = req.headers.get("authorization") ?? "";
+  if (!secret || auth !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const body = await req.json().catch(() => ({}));
@@ -32,13 +30,11 @@ export async function POST(req: NextRequest) {
 
 // Also allow Vercel cron (which uses GET)
 export async function GET(req: NextRequest) {
-  // Vercel cron sends the CRON_SECRET header automatically
+  // Vercel cron sends CRON_SECRET automatically. Deny if not configured or mismatched.
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
-    const auth = req.headers.get("authorization") ?? "";
-    if (auth !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const auth = req.headers.get("authorization") ?? "";
+  if (!cronSecret || auth !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const count = await botCommentOnRecentPosts(5);

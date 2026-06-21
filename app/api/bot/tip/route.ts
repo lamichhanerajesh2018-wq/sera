@@ -8,12 +8,11 @@ import { sendFeatureTip } from "@/lib/bot";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  // Deny if BOT_SECRET is not configured or the header doesn't match.
   const secret = process.env.BOT_SECRET;
-  if (secret) {
-    const auth = req.headers.get("authorization") ?? "";
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const auth = req.headers.get("authorization") ?? "";
+  if (!secret || auth !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { username } = await req.json().catch(() => ({}));

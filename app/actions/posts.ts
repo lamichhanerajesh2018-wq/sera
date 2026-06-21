@@ -132,10 +132,15 @@ export async function toggleLike(postId: string) {
   return { ok: true, liked: true };
 }
 
+// Allowed emoji reactions — whitelist prevents MongoDB field-key injection.
+const ALLOWED_REACTIONS = ["🔥", "😂", "😮", "💜", "😢"];
+
 // Emoji reaction — one of each emoji per user per post (toggle).
 export async function toggleReaction(postId: string, emoji: string) {
   const user = await getCurrentUser();
   if (!user) return { error: "You must be signed in." };
+
+  if (!ALLOWED_REACTIONS.includes(emoji)) return { error: "Invalid reaction." };
 
   const reactions = db.collection("reactions");
   const existing = await reactions.findOne({ postId, userId: user.id, type: emoji });
