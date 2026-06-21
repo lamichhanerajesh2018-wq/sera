@@ -121,7 +121,7 @@ export interface Report {
 }
 
 // An in-app notification for a user.
-export type NotificationType = "question" | "reply" | "message" | "answer";
+export type NotificationType = "question" | "reply" | "message" | "answer" | "comment";
 
 export interface Notification {
   _id: string;
