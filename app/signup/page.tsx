@@ -16,13 +16,13 @@ export default function SignupPage() {
       footer={
         <>
           Already have a name?{" "}
-          <Link href="/login" className="text-foreground underline-offset-4 hover:underline">
+          <Link href="/login" className="text-white underline-offset-4 hover:underline">
             Sign in
           </Link>
         </>
       }
     >
-      <Suspense fallback={<div className="text-sm text-muted-foreground">Loading…</div>}>
+      <Suspense fallback={<div className="text-sm text-white/50">Loading…</div>}>
         <SignupForm />
       </Suspense>
     </AuthShell>

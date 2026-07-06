@@ -70,7 +70,36 @@ export const auth = betterAuth({
     }),
   ],
 
+  // Social sign-in for onboarding (Google / Apple). Each provider only turns on
+  // once its client id + secret are present in .env.local — leave them blank
+  // and the button stays visible but disabled, no server error.
+  socialProviders: {
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? {
+          google: {
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          },
+        }
+      : {}),
+    ...(process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET
+      ? {
+          apple: {
+            clientId: process.env.APPLE_CLIENT_ID,
+            clientSecret: process.env.APPLE_CLIENT_SECRET,
+          },
+        }
+      : {}),
+  },
+
   // Used to sign session cookies. Set in .env.local.
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
 });
+
+// Exposed to the client (server component → props) so the onboarding UI knows
+// which social buttons are actually wired up, without leaking the secrets.
+export const enabledSocialProviders = {
+  google: Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+  apple: Boolean(process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET),
+};

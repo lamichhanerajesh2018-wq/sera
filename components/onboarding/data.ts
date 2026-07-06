@@ -1,0 +1,125 @@
+// components/onboarding/data.ts
+// Static option lists for the onboarding wizard's selection steps.
+import {
+  Cpu,
+  Code2,
+  BrainCircuit,
+  Briefcase,
+  Rocket,
+  PenTool,
+  Camera,
+  Gamepad2,
+  Dumbbell,
+  Trophy,
+  Music,
+  Landmark,
+  Megaphone,
+  Plane,
+  ChefHat,
+  GraduationCap,
+  HeartPulse,
+  BookOpen,
+  Users,
+  Hammer,
+  Globe,
+  Terminal,
+  Compass,
+  UserPlus,
+  Handshake,
+  TrendingUp,
+  Lightbulb,
+  Laptop,
+  Microscope,
+  MoreHorizontal,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
+
+export interface Option {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+export const INTERESTS: Option[] = [
+  { value: "technology", label: "Technology", icon: Cpu },
+  { value: "programming", label: "Programming", icon: Code2 },
+  { value: "ai", label: "AI", icon: BrainCircuit },
+  { value: "business", label: "Business", icon: Briefcase },
+  { value: "startups", label: "Startups", icon: Rocket },
+  { value: "design", label: "Design", icon: PenTool },
+  { value: "photography", label: "Photography", icon: Camera },
+  { value: "gaming", label: "Gaming", icon: Gamepad2 },
+  { value: "fitness", label: "Fitness", icon: Dumbbell },
+  { value: "sports", label: "Sports", icon: Trophy },
+  { value: "music", label: "Music", icon: Music },
+  { value: "finance", label: "Finance", icon: Landmark },
+  { value: "marketing", label: "Marketing", icon: Megaphone },
+  { value: "travel", label: "Travel", icon: Plane },
+  { value: "cooking", label: "Cooking", icon: ChefHat },
+  { value: "education", label: "Education", icon: GraduationCap },
+  { value: "health", label: "Health", icon: HeartPulse },
+];
+
+export const INTEREST_LIMITS = { min: 3, max: 10 };
+
+export const GOALS: Option[] = [
+  { value: "learn", label: "Learn", icon: BookOpen },
+  { value: "meet-people", label: "Meet people", icon: Users },
+  { value: "build-projects", label: "Build projects", icon: Hammer },
+  { value: "join-communities", label: "Join communities", icon: Globe },
+  { value: "discover-software", label: "Discover software", icon: Terminal },
+  { value: "find-opportunities", label: "Find opportunities", icon: Compass },
+  { value: "find-jobs", label: "Find jobs", icon: Briefcase },
+  { value: "hire-people", label: "Hire people", icon: UserPlus },
+  { value: "find-cofounders", label: "Find co-founders", icon: Handshake },
+  { value: "grow-business", label: "Grow my business", icon: TrendingUp },
+  { value: "share-knowledge", label: "Share knowledge", icon: Lightbulb },
+];
+
+export const IDENTITIES: Option[] = [
+  { value: "developer", label: "Developer", icon: Code2 },
+  { value: "founder", label: "Founder", icon: Rocket },
+  { value: "designer", label: "Designer", icon: PenTool },
+  { value: "creator", label: "Creator", icon: Sparkles },
+  { value: "student", label: "Student", icon: GraduationCap },
+  { value: "freelancer", label: "Freelancer", icon: Laptop },
+  { value: "business-owner", label: "Business Owner", icon: Briefcase },
+  { value: "marketer", label: "Marketer", icon: Megaphone },
+  { value: "researcher", label: "Researcher", icon: Microscope },
+  { value: "teacher", label: "Teacher", icon: BookOpen },
+  { value: "other", label: "Other", icon: MoreHorizontal },
+];
+
+export const SKILL_SUGGESTIONS: string[] = [
+  "React",
+  "Next.js",
+  "TypeScript",
+  "Python",
+  "Flutter",
+  "Swift",
+  "Figma",
+  "SEO",
+  "Marketing",
+  "Node.js",
+  "Photography",
+  "Video Editing",
+  "UI Design",
+  "UX Research",
+  "Copywriting",
+  "Public Speaking",
+  "Data Analysis",
+  "Machine Learning",
+  "Product Management",
+  "Sales",
+  "Illustration",
+  "3D Modeling",
+  "Go",
+  "Rust",
+  "DevOps",
+  "Cloud Infrastructure",
+  "Growth Marketing",
+  "Content Strategy",
+  "Community Management",
+  "Fundraising",
+];
