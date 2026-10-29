@@ -54,6 +54,12 @@ export default async function AdminStatsPage() {
           <h1 className="font-display text-xl font-semibold tracking-tight">Dashboard</h1>
           <div className="flex items-center gap-4 text-sm">
             <Link
+              href="/admin/research"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Research →
+            </Link>
+            <Link
               href="/admin/reports"
               className="text-muted-foreground transition-colors hover:text-foreground"
             >

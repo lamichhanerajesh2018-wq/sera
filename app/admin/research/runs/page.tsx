@@ -1,0 +1,8 @@
+import { listResearchRuns } from "@/lib/research/admin/data";
+import { EmptyState, PageTitle, StatusPill, Table, formatDate, money } from "../_components";
+
+export default async function ResearchRunsPage() {
+  const runs = await listResearchRuns(50);
+  return <><PageTitle title="Research runs" description="Bounded run history with credential-bearing configuration snapshots omitted." count={runs.length}/>
+    {runs.length ? <Table headers={["Type","Source / model","Version","Started / completed","Status","Attempted","Inserted / new","Accepted","Rejected / review","Merged","Failed","Retries","Tokens","Cost","Mode","Safe error"]}>{runs.map((run) => <tr key={`${run.type}:${run.id}`} className="align-top"><td className="px-3 py-3 font-medium">{run.type}</td><td className="max-w-48 px-3 py-3 break-words">{run.sourceOrModel}</td><td className="max-w-40 px-3 py-3 break-words text-xs">{run.version}</td><td className="px-3 py-3 text-xs">{formatDate(run.startedAt)}<br/>{formatDate(run.completedAt)}</td><td className="px-3 py-3"><StatusPill value={run.status}/></td><td className="px-3 py-3">{run.attempted??"—"}</td><td className="px-3 py-3">{run.inserted??"—"}</td><td className="px-3 py-3">{run.accepted??"—"}</td><td className="px-3 py-3">{run.rejected??"—"}</td><td className="px-3 py-3">{run.merged??"—"}</td><td className="px-3 py-3">{run.failed??"—"}</td><td className="px-3 py-3">{run.retries??"—"}</td><td className="px-3 py-3">{run.tokens?.toLocaleString()??"—"}</td><td className="px-3 py-3">{run.cost===null?"—":money(run.cost)}</td><td className="px-3 py-3"><StatusPill value={run.dryRun?"dry_run":"live"}/></td><td className="max-w-52 px-3 py-3 text-xs text-destructive">{run.error||"—"}</td></tr>)}</Table> : <EmptyState/>}</>;
+}
