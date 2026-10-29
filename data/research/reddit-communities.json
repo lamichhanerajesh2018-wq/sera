@@ -1,0 +1,11 @@
+{
+  "parenting_and_childcare": ["Parenting", "Mommit", "daddit", "workingmoms"],
+  "personal_finance_and_consumer_issues": ["personalfinance", "povertyfinance", "Frugal", "CreditCards", "Insurance"],
+  "employment_and_careers": ["jobs", "careerguidance", "recruitinghell", "antiwork"],
+  "education": ["Teachers", "college", "education"],
+  "housing_and_home": ["HomeImprovement", "homeowners", "renters", "Landlord", "realestate"],
+  "healthcare_and_caregiving": ["nursing", "CaregiverSupport", "HealthInsurance"],
+  "transportation_and_automotive": ["AskMechanics", "carrepair", "Truckers"],
+  "small_business_and_work_operations": ["smallbusiness", "restaurateur", "Construction", "ecommerce", "freelance"],
+  "travel_and_daily_life": ["travel", "solotravel"]
+}

@@ -1,0 +1,80 @@
+{
+  "configurationVersion": "research-pilot-v1",
+  "startDate": "2026-07-13",
+  "status": "blocked_preflight_missing_credentials",
+  "communities": [
+    "Parenting",
+    "workingmoms",
+    "personalfinance",
+    "povertyfinance",
+    "jobs",
+    "Teachers",
+    "HomeImprovement",
+    "renters",
+    "HealthInsurance"
+  ],
+  "queries": [
+    "struggling with",
+    "hard to find"
+  ],
+  "collection": {
+    "maximumPosts": 450,
+    "postsPerQuery": 25,
+    "maximumRequests": 19,
+    "maximumPostAgeDays": 365,
+    "sort": "relevance",
+    "timeFilter": "month",
+    "concurrency": 1,
+    "retryLimit": 3
+  },
+  "smokeTest": {
+    "maximumRedditPosts": 5,
+    "maximumExtractionRecords": 3,
+    "maximumDeduplicationRecords": 3,
+    "extractionMaximumCostUsd": 0.1,
+    "deduplicationMaximumCostUsd": 0.1,
+    "concurrency": 1
+  },
+  "models": {
+    "extraction": null,
+    "embedding": null,
+    "duplicateJudge": null,
+    "configurationRequiredAtExecution": true
+  },
+  "versions": {
+    "extractionPrompt": "problem-extraction-v1",
+    "embeddingText": "problem-embedding-v1",
+    "duplicateJudgePrompt": "duplicate-judge-v1",
+    "qualityGates": "research-quality-gates-v1",
+    "reasonCodes": "review-reasons-v1"
+  },
+  "thresholds": {
+    "extractionReviewConfidence": 0.55,
+    "extractionAcceptConfidence": 0.75,
+    "minimumCandidateSimilarity": 0.7,
+    "ambiguousSimilarity": 0.78,
+    "highSimilarity": 0.92,
+    "duplicateJudgeConfidence": 0.85
+  },
+  "processing": {
+    "extractionMaximumRecordsPerRun": 100,
+    "deduplicationMaximumRecordsPerRun": 100,
+    "extractionConcurrency": 1,
+    "deduplicationConcurrency": 1,
+    "extractionRetryLimit": 2,
+    "deduplicationRetryLimit": 2,
+    "extractionMaximumCostPerRunUsd": 1,
+    "deduplicationMaximumCostPerRunUsd": 1,
+    "maximumPlannedCombinedModelCostPerBatchUsd": 2
+  },
+  "vectorSearch": {
+    "atlasActive": false,
+    "mode": "bounded_application_cosine_fallback"
+  },
+  "privacy": {
+    "secretsExcluded": true,
+    "commentsCollected": false,
+    "profilesCollected": false,
+    "privateSourcesCollected": false
+  }
+}

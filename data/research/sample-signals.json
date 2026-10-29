@@ -1,0 +1,28 @@
+[
+  {
+    "source": "manual_import",
+    "sourceId": "sample-001",
+    "sourceUrl": "https://example.com/research/sample-001",
+    "title": "Childcare is difficult with night shifts",
+    "body": "I work nights and cannot find childcare that stays open late.",
+    "publishedAt": "2026-01-01T12:00:00Z",
+    "language": "en",
+    "targetCountry": "united_states",
+    "geographyEvidence": "us_context",
+    "industrySeed": "Childcare",
+    "audienceSeed": "Working parents"
+  },
+  {
+    "source": "manual_import",
+    "sourceId": "sample-002",
+    "sourceUrl": "https://example.com/research/sample-002",
+    "title": "Apartment maintenance requests take weeks",
+    "body": "Our building's repair process leaves renters waiting weeks for basic maintenance.",
+    "publishedAt": "2026-01-03T15:30:00Z",
+    "language": "en-US",
+    "targetCountry": "united_states",
+    "geographyEvidence": "explicit_us",
+    "industrySeed": "Housing",
+    "audienceSeed": "Renters"
+  }
+]
